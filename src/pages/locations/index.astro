@@ -1,0 +1,70 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { db } from "@lib/database";
+import { location } from "@lib/database/schema/location";
+
+const locations = await db.select().from(location).orderBy(location.name);
+---
+
+<Layout title="Locations">
+  <div class="flex flex-col gap-4 max-w-[700px] mx-auto">
+    <div class="flex flex-col gap-4">
+      <h3 class="font-bold text-3xl">Add location:</h3>
+      <form method="POST" action="/api/locations" class="flex flex-col gap-2">
+        <label for="first_name">Name:</label>
+        <input class="border-2" type="text" name="name" required />
+
+        <label for="last_name">Street:</label>
+        <input class="border-2" type="text" name="street" />
+
+        <label for="last_name">Zip code:</label>
+        <input class="border-2" type="text" name="zip_code" />
+
+        <label for="last_name">City:</label>
+        <input class="border-2" type="text" name="city" />
+
+        <label for="last_name">Country:</label>
+        <input class="border-2" type="text" name="country" />
+
+        <button class="border-2">Add</button>
+      </form>
+    </div>
+
+    {
+      locations.length === 0 ? (
+        <span class="font-bold text-xl text-center">No locations found in the database!</span>
+      ) : (
+        <div class="flex flex-col gap-4">
+          <h3 class="font-bold text-xl">All locations:</h3>
+          <ul class="flex flex-col gap-4">
+            {locations.map((location) => {
+              const has_address = location.street && location.zip_code && location.city && location.country;
+              return (
+                <li class="border-2 rounded-xl p-2 px-4 flex flex-row justify-between items-center gap-4">
+                  <div class="flex flex-col">
+                    <div>
+                      <span class="font-bold">{location.name}</span>
+                      {location.default_location ? <span>(default)</span> : null}
+                    </div>
+                    {!has_address ? null : (
+                      <span>
+                        {location.street}, {location.zip_code} {location.city}, {location.country}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <form method="POST" action="/api/locations/delete">
+                      <input name="location_id" value={location.id} hidden />
+
+                      <button class="border-b-2">Remove</button>
+                    </form>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+</Layout>

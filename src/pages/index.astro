@@ -1,7 +1,65 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from "@layouts/Layout.astro";
+import { db } from "@lib/database";
+import { employee } from "@lib/database/schema/employee";
+import { location } from "@lib/database/schema/location";
+
+import { eq } from "drizzle-orm";
+
+if ((await db.select().from(location)).length === 0) {
+  console.log("No locations found in the database! Redirecting to /locations so the user can add one.");
+  return Astro.redirect("/locations");
+}
+
+let current_location = undefined;
+let current_location_id = undefined;
+
+if (Astro.cookies.has("current_location")) {
+  console.log("Getting current location from cookies");
+  current_location = Astro.cookies.get("current_location").value;
+  if ((await db.select().from(location).where(eq(location.name, current_location))).length == 0) {
+    console.warn(`Location '${current_location}' not found in the database! Clearing the cookie.`);
+    Astro.cookies.delete("current_location");
+    current_location = undefined;
+  }
+}
+
+if (current_location === undefined) {
+  console.log("Current location not set, getting the default one from the database");
+  const default_location = (
+    await db.select({ name: location.name }).from(location).where(eq(location.default_location, true))
+  )[0]["name"];
+  current_location = default_location;
+  Astro.cookies.set("current_location", current_location);
+}
+
+if (current_location === undefined) {
+  console.log(`Current location is for some reason not set, redirecting to /locations`);
+  return Astro.redirect("/locations");
+}
+
+current_location_id = (
+  await db.select({ id: location.id }).from(location).where(eq(location.name, current_location))
+)[0]["id"];
+
+const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id));
+
+const now = new Date();
+const month = Astro.url.searchParams.get("month") || now.toLocaleString("default", { month: "long" }).toLowerCase();
+
+const days_count = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 ---
 
 <Layout title="schedplanner">
-  <h1>Welcome to schedplanner</h1>
+  <div>
+    <h3>Schedule for {month}:</h3>
+    <span>Days count: {days_count}</span>
+    <div class=`grid grid-cols-[repeat(${21}, minmax(0,1fr))] grid- gap-2`>
+      {
+        Array.from(Array(days_count), (e, i) => {
+          return <span>{i}</span>;
+        })
+      }
+    </div>
+  </div>
 </Layout>

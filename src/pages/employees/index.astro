@@ -1,0 +1,80 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { db } from "@lib/database";
+import { employee } from "@lib/database/schema/employee";
+import { location } from "@lib/database/schema/location";
+
+import { eq } from "drizzle-orm";
+
+if ((await db.select().from(location)).length == 0) {
+  console.log("No locations found in the database! Redirecting to /locations so the user can add one.");
+  return Astro.redirect("/locations");
+}
+
+let current_location = (Astro.cookies.get("current_location") || {})?.value;
+
+if (!current_location) {
+  Astro.redirect("/");
+}
+
+const locations = await db.select().from(location).orderBy(location.name);
+
+let current_location_id = (
+  await db.select({ id: location.id }).from(location).where(eq(location.name, current_location))
+)[0]["id"];
+
+const employees = await db
+  .select()
+  .from(employee)
+  .where(eq(employee.location_id, current_location_id))
+  .orderBy(employee.full_name);
+---
+
+<Layout title="Employees">
+  <div class="flex flex-col gap-4 max-w-[700px] mx-auto">
+    <h3 class="font-bold text-3xl">Add employee:</h3>
+    <form method="POST" action="/api/employees" class="flex flex-col gap-2">
+      <label for="first_name">First name:</label>
+      <input class="border-2" type="text" name="first_name" required />
+
+      <label for="last_name">Last name:</label>
+      <input class="border-2" type="text" name="last_name" required />
+
+      <select name="location_id" hidden>
+        {
+          locations.map((location) => {
+            const is_current_location = location.name === current_location;
+
+            return (
+              <option value={location.id} selected={is_current_location}>
+                {location.name}
+              </option>
+            );
+          })
+        }
+      </select>
+
+      <button class="border-2">Add</button>
+    </form>
+
+    {
+      employees.length === 0 ? (
+        <span class="font-bold text-xl text-center">No employees found in the database</span>
+      ) : (
+        <div class="flex flex-col gap-4">
+          <h3 class="font-bold text-xl">All employees:</h3>
+          <ul>
+            {employees.map((employee) => {
+              return (
+                <li class="flex flex-row justify-between items-center gap-4">
+                  <span>{employee.full_name}</span>
+                  <span>Remove</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+</Layout>

@@ -1,0 +1,38 @@
+---
+import { db } from "@lib/database";
+import { location } from "@lib/database/schema/location";
+
+let current_location = (Astro.cookies.get("current_location") || {})?.value;
+
+const locations = await db.select().from(location).orderBy(location.name);
+---
+
+<div class="flex flex-row gap-4 items-center justify-between border-2 p-2 px-4">
+  <div class="flex flex-row items-center gap-4">
+    <h1><a href="/">SchedPlanner</a></h1>
+
+    {
+      locations.length === 0 ? (
+        <span class="font-bold">No locations found in the database!</span>
+      ) : (
+        <form method="POST" action="/api/locations/current" id="location-picker" class="flex flex-col gap-2">
+          <select name="chosen_location" onchange="this.form.submit()" required value={current_location}>
+            {locations.map((location) => {
+              const is_current_location = location.name === current_location;
+
+              return (
+                <option value={location.name} selected={is_current_location}>
+                  {location.name}
+                </option>
+              );
+            })}
+          </select>
+        </form>
+      )
+    }
+  </div>
+  <ul class="flex flex-row gap-2">
+    <li><a href="/locations">Locations</a></li>
+    <li><a href="/employees">Employees</a></li>
+  </ul>
+</div>
