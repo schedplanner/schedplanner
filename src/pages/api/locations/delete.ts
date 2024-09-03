@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { db } from "@lib/database";
+import { employee } from "@lib/database/schema/employee";
 import { location } from "@lib/database/schema/location";
 
 import { eq } from "drizzle-orm";
@@ -8,6 +9,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
   const location_id = form_data.get("location_id") as unknown as number;
+
+  await db.delete(employee).where(eq(employee.location_id, location_id));
 
   await db.delete(location).where(eq(location.id, location_id));
 
