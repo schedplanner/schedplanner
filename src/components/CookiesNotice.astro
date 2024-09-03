@@ -1,12 +1,12 @@
 ---
-
+import * as m from "@paraglide/messages";
 ---
 
 <section
   class="fixed flex items-center justify-between max-w-4xl p-4 mx-auto bg-white border border-gray-200 shadow-md left-4 bottom-4 shadow-gray-100 md:gap-x-4 rounded-2xl"
 >
   <p class="text-sm text-gray-600">
-    By continuing to use this site you consent to the use of cookies in accordance with our cookie policy.
+    {m.cookies()}
   </p>
 
   <form method="POST" action="/api/cookies">
