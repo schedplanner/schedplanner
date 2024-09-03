@@ -26,7 +26,7 @@ const cookies_accepted =
   <body>
     <Navbar />
     {!cookies_accepted ? <CookiesNotice /> : null}
-    <main class="min-h-[calc(100vh-2.8rem)]">
+    <main class="container p-12 mx-auto min-h-[calc(100vh-2.8rem)]">
       <slot />
     </main>
   </body>
