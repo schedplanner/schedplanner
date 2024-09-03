@@ -1,5 +1,5 @@
-export const fmtShift = (date_string) => {
-  const [hours, minutes, seconds] = date_string.split(":");
+export const fmtShift = (date_string: string): string => {
+  const [hours, minutes, _] = date_string.split(":");
 
   return `${hours}:${minutes}`;
 };

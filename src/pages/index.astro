@@ -97,7 +97,7 @@ for (let e in employees) {
           <tr class="divide-x">
             <th></th>
             {
-              Array.from(Array(days_count), (x, i) => {
+              Array.from(Array(days_count), (_, i) => {
                 i = i + 1;
                 return <th class="px-4 py-2 text-sm font-normal text-gray-500">{i}</th>;
               })
@@ -110,7 +110,7 @@ for (let e in employees) {
               return (
                 <tr class="divide-x">
                   <td class="p-4 text-sm font-bold whitespace-nowrap">{employee.full_name}</td>
-                  {Array.from(Array(days_count), (x, i) => {
+                  {Array.from(Array(days_count), (_, i) => {
                     i = i + 1;
                     if (!full_schedule[employee.id][i]) {
                       return <td />;

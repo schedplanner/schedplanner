@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial } from "drizzle-orm/pg-core";
 import { employee } from "@lib/database/schema/employee";
 import { shift } from "@lib/database/schema/shift";
 
