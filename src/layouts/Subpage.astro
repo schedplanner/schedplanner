@@ -10,7 +10,7 @@ interface Props {
 const { title } = Astro.props;
 
 const cookies_accepted =
-  Astro.cookies.has(Cookies.cookies_accepted) && Astro.cookies.get(Cookies.cookies_accepted).value === "true";
+  Astro.cookies.has(Cookies.cookies_accepted) && Astro.cookies.get(Cookies.cookies_accepted)?.value === "true";
 ---
 
 <!doctype html>

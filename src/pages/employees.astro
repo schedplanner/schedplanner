@@ -14,9 +14,9 @@ if ((await db.select().from(location)).length == 0) {
   return Astro.redirect("/locations");
 }
 
-let current_location = (Astro.cookies.get(Cookies.current_location) || {})?.value;
+let current_location = (Astro.cookies.get(Cookies.current_location) || {})?.value || "";
 
-if (!current_location) {
+if (!current_location || current_location === "") {
   Astro.redirect("/");
 }
 

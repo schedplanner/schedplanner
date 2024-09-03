@@ -24,5 +24,5 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   await db.insert(location).values(insert_data);
 
-  return redirect(request.headers.get("referer"));
+  return redirect(request.headers.get("referer") || "/");
 };

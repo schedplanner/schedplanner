@@ -7,5 +7,5 @@ export const POST: APIRoute = async ({ cookies, request, redirect }) => {
     path: "/",
   });
 
-  return redirect(request.headers.get("referer"));
+  return redirect(request.headers.get("referer") || "/");
 };

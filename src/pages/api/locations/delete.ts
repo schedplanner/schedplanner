@@ -15,5 +15,5 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   await db.update(location).set({ default_location: true }).where(eq(location.id, first_location.id));
 
-  return redirect(request.headers.get("referer"));
+  return redirect(request.headers.get("referer") || "/");
 };

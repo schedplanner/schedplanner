@@ -15,20 +15,23 @@ if ((await db.select().from(location)).length === 0) {
   return Astro.redirect("/locations");
 }
 
-let current_location = undefined;
-let current_location_id = undefined;
+let current_location = "";
+let current_location_id = -1;
 
 if (Astro.cookies.has(Cookies.current_location)) {
   console.log("Getting current location from cookies");
-  current_location = Astro.cookies.get(Cookies.current_location).value;
-  if ((await db.select().from(location).where(eq(location.name, current_location))).length == 0) {
+  current_location = Astro.cookies.get(Cookies.current_location)?.value || "";
+  if (
+    current_location !== "" &&
+    (await db.select().from(location).where(eq(location.name, current_location))).length == 0
+  ) {
     console.warn(`Location '${current_location}' not found in the database! Clearing the cookie.`);
     Astro.cookies.delete(Cookies.current_location);
-    current_location = undefined;
+    current_location = "";
   }
 }
 
-if (current_location === undefined) {
+if (current_location === "") {
   console.log("Current location not set, getting the default one from the database");
   const default_location = (
     await db.select({ name: location.name }).from(location).where(eq(location.default_location, true))
@@ -37,7 +40,7 @@ if (current_location === undefined) {
   Astro.cookies.set(Cookies.current_location, current_location);
 }
 
-if (current_location === undefined) {
+if (current_location === "") {
   console.log(`Current location is for some reason not set, redirecting to /locations`);
   return Astro.redirect("/locations");
 }
@@ -67,11 +70,15 @@ for (let e in employees) {
     .leftJoin(shift, eq(schedule.shift_id, shift.id))
     .orderBy(schedule.day);
 
-  employee_schedule.map((s) => {
-    full_schedule[employees[e].id][s.schedule.day] = {};
-    full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift.start);
-    full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift.end);
-  });
+  employee_schedule
+    .filter((s) => {
+      return s.shift !== null;
+    })
+    .map((s) => {
+      full_schedule[employees[e].id][s.schedule.day] = {};
+      full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift?.start);
+      full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift?.end);
+    });
 }
 ---
 
