@@ -69,7 +69,9 @@ const employees = await db
             {employees.map((employee) => {
               return (
                 <li class="flex flex-row justify-between items-center gap-4">
-                  <span>{employee.full_name}</span>
+                  <span>
+                    {employee.id}. {employee.full_name}
+                  </span>
                   <span>Remove</span>
                 </li>
               );
