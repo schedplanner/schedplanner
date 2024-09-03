@@ -80,8 +80,8 @@ for (let e in employees) {
     })
     .map((s) => {
       full_schedule[employees[e].id][s.schedule.day] = {};
-      full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift?.start);
-      full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift?.end);
+      full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift!.start);
+      full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift!.end);
     });
 }
 ---
