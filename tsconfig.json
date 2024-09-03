@@ -6,8 +6,10 @@
       "@assets/*": ["src/assets/*"],
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@paraglide/*": ["src/paraglide/*"]
     },
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "allowJs": true
   }
 }

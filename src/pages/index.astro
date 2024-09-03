@@ -1,5 +1,5 @@
 ---
-import Layout from "@layouts/Layout.astro";
+import Layout from "@layouts/Common.astro";
 import { db } from "@lib/database";
 import { employee } from "@lib/database/schema/employee";
 import { location } from "@lib/database/schema/location";
@@ -7,8 +7,12 @@ import { schedule } from "@lib/database/schema/schedule";
 import { shift } from "@lib/database/schema/shift";
 import Cookies from "@lib/cookies";
 import { fmtShift } from "@lib/utils";
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
 
 import { and, eq } from "drizzle-orm";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
 
 if ((await db.select().from(location)).length === 0) {
   console.log("No locations found in the database! Redirecting to /locations so the user can add one.");
@@ -19,7 +23,6 @@ let current_location = "";
 let current_location_id = -1;
 
 if (Astro.cookies.has(Cookies.current_location)) {
-  console.log("Getting current location from cookies");
   current_location = Astro.cookies.get(Cookies.current_location)?.value || "";
   if (
     current_location !== "" &&
@@ -32,7 +35,6 @@ if (Astro.cookies.has(Cookies.current_location)) {
 }
 
 if (current_location === "") {
-  console.log("Current location not set, getting the default one from the database");
   const default_location = (
     await db.select({ name: location.name }).from(location).where(eq(location.default_location, true))
   )[0]["name"];
@@ -51,10 +53,12 @@ current_location_id = (
 
 const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id));
 
+const monthFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { month: "long" });
+
 const now = new Date();
 const year = now.getFullYear();
 const month = (Astro.url.searchParams.get("month") as unknown as number) || now.getMonth() + 1;
-const month_str = new Date(now.getFullYear(), month, 0).toLocaleString("default", { month: "long" });
+const month_str = monthFormat.format(new Date(now.getFullYear(), month, 0));
 
 const days_count = new Date(now.getFullYear(), month, 0).getDate();
 
@@ -85,7 +89,7 @@ for (let e in employees) {
 <Layout title="schedplanner">
   <div>
     <div class="container px-12 py-6 mx-auto">
-      <h3 class="font-bold text-3xl">Schedule for {month_str}:</h3>
+      <h3 class="font-bold text-3xl">{m.schedule_title({ month: month_str })}:</h3>
     </div>
     <div class="overflow-x-auto">
       <table class="table-auto min-w-full divide-x divide-gray-200">

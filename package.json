@@ -5,17 +5,19 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "build": "paraglide-js compile --project ./schedplanner.inlang --outdir ./src/paraglide && astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "npx tsx ./src/lib/database/migrate.ts",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "postinstall": "paraglide-js compile --project ./schedplanner.inlang --outdir ./src/paraglide"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",
     "@astrojs/node": "^8.3.3",
     "@astrojs/tailwind": "^5.1.0",
+    "@inlang/paraglide-astro": "^0.2.2",
     "astro": "^4.15.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.33.0",
@@ -24,6 +26,7 @@
     "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "@inlang/paraglide-js": "1.11.2",
     "@types/node": "^22.5.1",
     "drizzle-kit": "^0.24.2"
   }

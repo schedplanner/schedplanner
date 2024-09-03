@@ -4,6 +4,10 @@ import { db } from "@lib/database";
 import { location } from "@lib/database/schema/location";
 import HTMLInput from "@components/HTMLInput.astro";
 import HTMLSubmit from "@components/HTMLSubmit.astro";
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
 
 const locations = await db.select().from(location).orderBy(location.name);
 ---
@@ -11,7 +15,7 @@ const locations = await db.select().from(location).orderBy(location.name);
 <Subpage title="Locations">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-4">
-      <h3 class="font-bold text-3xl">Add location:</h3>
+      <h3 class="font-bold text-3xl">{m.add_location()}:</h3>
       <form method="POST" action="/api/locations">
         <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
           <HTMLInput name="name" label="Name" type="text" required class="col-span-2" />
@@ -26,10 +30,10 @@ const locations = await db.select().from(location).orderBy(location.name);
 
       {
         locations.length === 0 ? (
-          <span class="font-bold text-xl text-center">No locations found in the database!</span>
+          <span class="font-bold text-xl text-center">{m.no_locations()}</span>
         ) : (
           <div class="flex flex-col gap-4">
-            <h3 class="font-bold text-xl">All locations:</h3>
+            <h3 class="font-bold text-xl">{m.all_locations()}:</h3>
             <ul class="flex flex-col gap-4">
               {locations.map((location) => {
                 const has_address = location.street && location.zip_code && location.city && location.country;
@@ -50,7 +54,7 @@ const locations = await db.select().from(location).orderBy(location.name);
                       <form method="POST" action="/api/locations/delete">
                         <input name="location_id" value={location.id} hidden />
 
-                        <button class="border-b-2">Remove</button>
+                        <button class="border-b-2">{m.remove()}</button>
                       </form>
                     </div>
                   </li>

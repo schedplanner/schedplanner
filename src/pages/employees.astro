@@ -6,8 +6,12 @@ import { location } from "@lib/database/schema/location";
 import HTMLInput from "@components/HTMLInput.astro";
 import HTMLSubmit from "@components/HTMLSubmit.astro";
 import Cookies from "@lib/cookies";
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
 
 import { eq } from "drizzle-orm";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
 
 if ((await db.select().from(location)).length == 0) {
   console.log("No locations found in the database! Redirecting to /locations so the user can add one.");
@@ -35,11 +39,11 @@ const employees = await db
 
 <Subpage title="Employees">
   <div class="flex flex-col gap-4">
-    <h3 class="font-bold text-3xl">Add employee:</h3>
+    <h3 class="font-bold text-3xl">{m.add_employee()}:</h3>
     <form method="POST" action="/api/employees">
       <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-        <HTMLInput name="first_name" label="First name" type="text" required />
-        <HTMLInput name="last_name" label="Last name" type="text" required />
+        <HTMLInput name="first_name" label={m.first_name()} type="text" required />
+        <HTMLInput name="last_name" label={m.last_name()} type="text" required />
 
         <select name="location_id" hidden>
           {
@@ -55,16 +59,16 @@ const employees = await db
           }
         </select>
 
-        <HTMLSubmit label="Add" class="col-span-2" />
+        {m.add()}<HTMLSubmit label="Add" class="col-span-2" />
       </div>
     </form>
 
     {
       employees.length === 0 ? (
-        <span class="font-bold text-xl text-center">No employees found in the database</span>
+        <span class="font-bold text-xl text-center">{m.no_employees()}</span>
       ) : (
         <div class="flex flex-col gap-4">
-          <h3 class="font-bold text-xl">All employees:</h3>
+          <h3 class="font-bold text-xl">{m.all_employees()}:</h3>
           <ul>
             {employees.map((employee) => {
               return (
@@ -72,7 +76,7 @@ const employees = await db
                   <span>
                     {employee.id}. {employee.full_name}
                   </span>
-                  <span>Remove</span>
+                  <span>{m.remove()}</span>
                 </li>
               );
             })}
