@@ -73,9 +73,7 @@ const employees = await db
             {employees.map((employee) => {
               return (
                 <li class="flex flex-row justify-between items-center gap-4">
-                  <span>
-                    {employee.id}. {employee.full_name}
-                  </span>
+                  <span>{employee.full_name}</span>
                   <div>
                     <form method="POST" action="/api/employees/delete">
                       <input name="employee_id" value={employee.id} hidden />
