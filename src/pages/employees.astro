@@ -76,7 +76,13 @@ const employees = await db
                   <span>
                     {employee.id}. {employee.full_name}
                   </span>
-                  <span>{m.remove()}</span>
+                  <div>
+                    <form method="POST" action="/api/employees/delete">
+                      <input name="employee_id" value={employee.id} hidden />
+
+                      <button class="border-b-2">{m.remove()}</button>
+                    </form>
+                  </div>
                 </li>
               );
             })}
