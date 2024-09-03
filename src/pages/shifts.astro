@@ -1,0 +1,48 @@
+---
+import Subpage from "@layouts/Subpage.astro";
+import { db } from "@lib/database";
+import { shift } from "@lib/database/schema/shift";
+import HTMLInput from "@components/HTMLInput.astro";
+import HTMLSubmit from "@components/HTMLSubmit.astro";
+import { fmtShift } from "@lib/utils";
+
+const shifts = await db.select().from(shift).orderBy(shift.id);
+---
+
+<Subpage title="Employees">
+  <div class="flex flex-col gap-4">
+    <h3 class="font-bold text-3xl">Add employee:</h3>
+    <form method="POST" action="/api/shifts">
+      <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
+        <HTMLInput name="comment" label="Comment" type="text" class="col-span-2" />
+        <HTMLInput name="start" label="Shift start" type="time" required />
+        <HTMLInput name="end" label="Shift end" type="time" required />
+
+        <HTMLSubmit label="Add" class="col-span-2" />
+      </div>
+    </form>
+
+    {
+      shifts.length === 0 ? (
+        <span class="font-bold text-xl text-center">No shifts found in the database</span>
+      ) : (
+        <div class="flex flex-col gap-4">
+          <h3 class="font-bold text-xl">All shifts:</h3>
+          <ul class="flex flex-col gap-4">
+            {shifts.map((shift) => {
+              return (
+                <li class="flex flex-col border-2 rounded-xl p-2 px-4">
+                  {shift.comment ? <span>{shift.comment}</span> : null}
+                  <span>Shift {shift.id}</span>
+                  <span>
+                    From {fmtShift(shift.start)} to {fmtShift(shift.end)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+</Subpage>
