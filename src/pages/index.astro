@@ -99,7 +99,7 @@ for (let e in employees) {
             {
               Array.from(Array(days_count), (_, i) => {
                 i = i + 1;
-                return <th class="px-4 py-2 text-sm font-normal text-gray-500">{i}</th>;
+                return <th class="w-16 h-8 text-sm font-normal text-gray-500">{i}</th>;
               })
             }
           </tr>
@@ -113,11 +113,13 @@ for (let e in employees) {
                   {Array.from(Array(days_count), (_, i) => {
                     i = i + 1;
                     return (
-                      <td class="px-4 py-2 text-sm flex flex-col items-center">
-                        {full_schedule[employee.id][i] ? (
-                          <span>{full_schedule[employee.id][i]["start"]}</span>
-                          <span>{full_schedule[employee.id][i]["end"]}</span>
-                        ): null}
+                      <td>
+                        <a href={`/schedule?location=${current_location_id}&employee=${employee.id}&month=${month}&day=${i}`} class="text-sm flex flex-col items-center justify-center w-16 h-16 bg-slate-200 bg-opacity-0 hover:bg-opacity-50 transition-colors">
+                          {full_schedule[employee.id][i] ? (
+                            <span>{full_schedule[employee.id][i]["start"]}</span>
+                            <span>{full_schedule[employee.id][i]["end"]}</span>
+                          ): null}
+                        </a>
                       </td>
                     );
                   })}

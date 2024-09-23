@@ -1,0 +1,66 @@
+---
+import Subpage from "@layouts/Subpage.astro";
+import { db } from "@lib/database";
+import { employee } from "@lib/database/schema/employee";
+import { shift } from "@lib/database/schema/shift";
+import { fmtShift } from "@lib/utils";
+import HTMLSubmit from "@components/HTMLSubmit.astro";
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
+
+import { eq } from "drizzle-orm";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
+
+const location_id = Astro.url.searchParams.get("location");
+const month = (Astro.url.searchParams.get("month") as unknown as number);
+const day = (Astro.url.searchParams.get("day") as unknown as number);
+const employee_id = (Astro.url.searchParams.get("employee") as unknown as number);
+
+if (![location_id, month, day, employee_id].every(v => v != null)) {
+    return Astro.redirect("/")
+}
+
+const now = new Date();
+const monthFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { month: "long" });
+const month_str = monthFormat.format(new Date(now.getFullYear(), month, 0));
+
+const employee_full_name = (await db
+  .select()
+  .from(employee)
+  .where(eq(employee.id, employee_id)))[0].full_name;
+
+const shifts = await db.select().from(shift)
+---
+
+<Subpage title="Schedule">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4">
+      <h3 class="font-bold text-3xl">{m.schedule()}: Modifying {day}th {month_str} for {employee_full_name}:</h3>
+      <form method="POST" action="/api/schedule">
+        <div class="flex flex-col gap-4">
+          <select name="shift_id" class="bg-slate-200 px-4 py-2" required>
+            {shifts.map((shift) => {
+            return (
+              <option value={shift.id}>
+                <span>
+                  {shift.comment ? `${shift.comment}:` : null}
+                  {m.shift_with_number({ shift: shift.id })}
+                  {m.shift_range({ start: fmtShift(shift.start), end: fmtShift(shift.end) })}
+                </span>
+              </option>
+            );
+            })}
+          </select>
+
+          <input name="employee_id" value={employee_id} hidden />
+          <input name="year" value={now.getFullYear()} hidden />
+          <input name="month" value={month} hidden />
+          <input name="day" value={day} hidden />
+
+          <HTMLSubmit label="Add" class="col-span-2" />
+        </div>
+      </form>
+    </div>
+  </div>
+</Subpage>

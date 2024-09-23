@@ -23,5 +23,6 @@
   "shift_range": "From {start} to {end}",
   "all_locations": "All locations",
   "add_location": "Add location",
-  "add_shift": "Add shift"
+  "add_shift": "Add shift",
+  "schedule": "Schedule"
 }
