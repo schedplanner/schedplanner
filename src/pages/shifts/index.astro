@@ -18,11 +18,11 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
     <h3 class="font-bold text-3xl">{m.add_shift()}:</h3>
     <form method="POST" action="/api/shifts">
       <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-        <HTMLInput name="comment" label="Comment" type="text" class="col-span-2" />
-        <HTMLInput name="start" label="Shift start" type="time" required />
-        <HTMLInput name="end" label="Shift end" type="time" required />
+        <HTMLInput name="comment" label={m.comment()} type="text" class="col-span-2" />
+        <HTMLInput name="start" label={m.shift_start()} type="time" required />
+        <HTMLInput name="end" label={m.shift_end()} type="time" required />
 
-        <HTMLSubmit label="Add" class="col-span-2" />
+        <HTMLSubmit label={m.add()} class="col-span-2" />
       </div>
     </form>
 

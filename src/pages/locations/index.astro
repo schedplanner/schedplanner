@@ -18,13 +18,13 @@ const locations = await db.select().from(location).orderBy(location.name);
       <h3 class="font-bold text-3xl">{m.add_location()}:</h3>
       <form method="POST" action="/api/locations">
         <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-          <HTMLInput name="name" label="Name" type="text" required class="col-span-2" />
-          <HTMLInput name="street" label="Street" type="text" />
-          <HTMLInput name="zip_code" label="Zip code" type="text" />
+          <HTMLInput name="name" label={m.name()} type="text" required class="col-span-2" />
+          <HTMLInput name="street" label={m.street()} type="text" />
+          <HTMLInput name="zip_code" label={m.zip_code()} type="text" />
           <HTMLInput name="city" label="City" type="text" />
-          <HTMLInput name="country" label="Country" type="text" />
+          <HTMLInput name="country" label={m.country()} type="text" />
 
-          <HTMLSubmit label="Add" class="col-span-2" />
+          <HTMLSubmit label={m.add()} class="col-span-2" />
         </div>
       </form>
 
@@ -42,7 +42,7 @@ const locations = await db.select().from(location).orderBy(location.name);
                     <div class="flex flex-col">
                       <div>
                         <span class="font-bold">{location.name}</span>
-                        {location.default_location ? <span>(default)</span> : null}
+                        {location.default_location ? <span>({m.default_location()})</span> : null}
                       </div>
                       {!has_address ? null : (
                         <span>

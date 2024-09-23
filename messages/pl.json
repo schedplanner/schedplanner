@@ -23,5 +23,15 @@
   "shift_range": "Od {start} do {end}",
   "all_locations": "Wszystkie lokacje",
   "add_location": "Dodaj lokację",
-  "add_shift": "Dodaj zmianę"
+  "add_shift": "Dodaj zmianę",
+  "schedule": "Grafik",
+  "schedule_modifying_day_for_employee": "Modyfikowanie dnia {day} {month} dla {employee}",
+  "country": "Kraj",
+  "zip_code": "Kod pocztowy",
+  "street": "Ulica",
+  "name": "Nazwa",
+  "default_location": "domyślna",
+  "comment": "Komentarz",
+  "shift_start": "Początek zmiany",
+  "shift_end": "Koniec zmiany"
 }

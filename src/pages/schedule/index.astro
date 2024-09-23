@@ -33,7 +33,9 @@ const shifts = await db.select().from(shift);
 <Subpage title="Schedule">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-4">
-      <h3 class="font-bold text-3xl">{m.schedule()}: Modifying {day}th {month_str} for {employee_full_name}:</h3>
+      <h3 class="font-bold text-3xl">
+        {m.schedule()}: {m.schedule_modifying_day_for_employee({ day: day, month: month_str, employee: employee_full_name })}:
+      </h3>
       <form method="POST" action="/api/schedule">
         <div class="flex flex-col gap-4">
           <select name="shift_id" class="bg-slate-200 px-4 py-2" required>
