@@ -92,19 +92,19 @@ for (let e in employees) {
       <h3 class="font-bold text-3xl">{m.schedule_title({ month: month_str })}:</h3>
     </div>
     <div class="overflow-x-auto">
-      <table class="table-auto min-w-full divide-x divide-gray-200">
-        <thead class="bg-gray-50">
+      <table class="table-auto min-w-full divide-x divide-gray-200 border-gray-200">
+        <thead>
           <tr class="divide-x">
             <th></th>
             {
               Array.from(Array(days_count), (_, i) => {
                 i = i + 1;
-                return <th class="w-16 h-8 text-sm font-normal text-gray-500">{i}</th>;
+                return <th class="text-sm font-normal text-gray-500 bg-gray-50 border-t-[1px]">{i}</th>;
               })
             }
           </tr>
         </thead>
-        <tbody class="divide-y">
+        <tbody class="divide-y border-y-[1px]">
           {
             employees.map((employee) => {
               return (
@@ -113,8 +113,8 @@ for (let e in employees) {
                   {Array.from(Array(days_count), (_, i) => {
                     i = i + 1;
                     return (
-                      <td>
-                        <a href={`/schedule?location=${current_location_id}&employee=${employee.id}&month=${month}&day=${i}`} class="text-sm flex flex-col items-center justify-center w-16 h-16 bg-slate-200 bg-opacity-0 hover:bg-opacity-50 transition-colors">
+                      <td class=" bg-slate-200 bg-opacity-0 hover:bg-opacity-50 transition-colors">
+                        <a href={`/schedule?location=${current_location_id}&employee=${employee.id}&month=${month}&day=${i}`} class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12">
                           {full_schedule[employee.id][i] ? (
                             <span>{full_schedule[employee.id][i]["start"]}</span>
                             <span>{full_schedule[employee.id][i]["end"]}</span>
