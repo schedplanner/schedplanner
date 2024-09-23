@@ -24,10 +24,7 @@ let current_location_id = -1;
 
 if (Astro.cookies.has(Cookies.current_location)) {
   current_location = Astro.cookies.get(Cookies.current_location)?.value || "";
-  if (
-    current_location !== "" &&
-    (await db.select().from(location).where(eq(location.name, current_location))).length == 0
-  ) {
+  if (current_location !== "" && (await db.select().from(location).where(eq(location.name, current_location))).length == 0) {
     console.warn(`Location '${current_location}' not found in the database! Clearing the cookie.`);
     Astro.cookies.delete(Cookies.current_location);
     current_location = "";
@@ -35,9 +32,7 @@ if (Astro.cookies.has(Cookies.current_location)) {
 }
 
 if (current_location === "") {
-  const default_location = (
-    await db.select({ name: location.name }).from(location).where(eq(location.default_location, true))
-  )[0]["name"];
+  const default_location = (await db.select({ name: location.name }).from(location).where(eq(location.default_location, true)))[0]["name"];
   current_location = default_location;
   Astro.cookies.set(Cookies.current_location, current_location);
 }
@@ -47,9 +42,7 @@ if (current_location === "") {
   return Astro.redirect("/locations");
 }
 
-current_location_id = (
-  await db.select({ id: location.id }).from(location).where(eq(location.name, current_location))
-)[0]["id"];
+current_location_id = (await db.select({ id: location.id }).from(location).where(eq(location.name, current_location)))[0]["id"];
 
 const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id));
 
@@ -114,11 +107,16 @@ for (let e in employees) {
                     i = i + 1;
                     return (
                       <td class=" bg-slate-200 bg-opacity-0 hover:bg-opacity-50 transition-colors">
-                        <a href={`/schedule?location=${current_location_id}&employee=${employee.id}&month=${month}&day=${i}`} class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12">
+                        <a
+                          href={`/schedule?location=${current_location_id}&employee=${employee.id}&month=${month}&day=${i}`}
+                          class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12"
+                        >
                           {full_schedule[employee.id][i] ? (
-                            <span>{full_schedule[employee.id][i]["start"]}</span>
-                            <span>{full_schedule[employee.id][i]["end"]}</span>
-                          ): null}
+                            <>
+                              <span>{full_schedule[employee.id][i]["start"]}</span>
+                              <span>{full_schedule[employee.id][i]["end"]}</span>
+                            </>
+                          ) : null}
                         </a>
                       </td>
                     );

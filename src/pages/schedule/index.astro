@@ -13,24 +13,21 @@ import { eq } from "drizzle-orm";
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
 const location_id = Astro.url.searchParams.get("location");
-const month = (Astro.url.searchParams.get("month") as unknown as number);
-const day = (Astro.url.searchParams.get("day") as unknown as number);
-const employee_id = (Astro.url.searchParams.get("employee") as unknown as number);
+const month = Astro.url.searchParams.get("month") as unknown as number;
+const day = Astro.url.searchParams.get("day") as unknown as number;
+const employee_id = Astro.url.searchParams.get("employee") as unknown as number;
 
-if (![location_id, month, day, employee_id].every(v => v != null)) {
-    return Astro.redirect("/")
+if (![location_id, month, day, employee_id].every((v) => v != null)) {
+  return Astro.redirect("/");
 }
 
 const now = new Date();
 const monthFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { month: "long" });
 const month_str = monthFormat.format(new Date(now.getFullYear(), month, 0));
 
-const employee_full_name = (await db
-  .select()
-  .from(employee)
-  .where(eq(employee.id, employee_id)))[0].full_name;
+const employee_full_name = (await db.select().from(employee).where(eq(employee.id, employee_id)))[0].full_name;
 
-const shifts = await db.select().from(shift)
+const shifts = await db.select().from(shift);
 ---
 
 <Subpage title="Schedule">
@@ -40,17 +37,19 @@ const shifts = await db.select().from(shift)
       <form method="POST" action="/api/schedule">
         <div class="flex flex-col gap-4">
           <select name="shift_id" class="bg-slate-200 px-4 py-2" required>
-            {shifts.map((shift) => {
-            return (
-              <option value={shift.id}>
-                <span>
-                  {shift.comment ? `${shift.comment}:` : null}
-                  {m.shift_with_number({ shift: shift.id })}
-                  {m.shift_range({ start: fmtShift(shift.start), end: fmtShift(shift.end) })}
-                </span>
-              </option>
-            );
-            })}
+            {
+              shifts.map((shift) => {
+                return (
+                  <option value={shift.id}>
+                    <span>
+                      {shift.comment ? `${shift.comment}:` : null}
+                      {m.shift_with_number({ shift: shift.id })}
+                      {m.shift_range({ start: fmtShift(shift.start), end: fmtShift(shift.end) })}
+                    </span>
+                  </option>
+                );
+              })
+            }
           </select>
 
           <input name="employee_id" value={employee_id} hidden />

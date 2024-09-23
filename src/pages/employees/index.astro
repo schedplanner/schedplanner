@@ -26,15 +26,9 @@ if (!current_location || current_location === "") {
 
 const locations = await db.select().from(location).orderBy(location.name);
 
-let current_location_id = (
-  await db.select({ id: location.id }).from(location).where(eq(location.name, current_location))
-)[0]["id"];
+let current_location_id = (await db.select({ id: location.id }).from(location).where(eq(location.name, current_location)))[0]["id"];
 
-const employees = await db
-  .select()
-  .from(employee)
-  .where(eq(employee.location_id, current_location_id))
-  .orderBy(employee.full_name);
+const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id)).orderBy(employee.full_name);
 ---
 
 <Subpage title="Employees">
