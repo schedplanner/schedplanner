@@ -1,6 +1,7 @@
-import type { APIRoute } from "astro";
 import { db } from "@lib/database";
 import { location } from "@lib/database/schema/location";
+
+import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async () => {
   const locations = await db.select().from(location);

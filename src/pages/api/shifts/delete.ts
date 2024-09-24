@@ -1,8 +1,8 @@
-import type { APIRoute } from "astro";
 import { db } from "@lib/database";
 import { schedule } from "@lib/database/schema/schedule";
 import { shift } from "@lib/database/schema/shift";
 
+import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
 
 export const POST: APIRoute = async ({ request, redirect }) => {

@@ -1,6 +1,7 @@
-import { integer, pgTable, serial } from "drizzle-orm/pg-core";
 import { employee } from "@lib/database/schema/employee";
 import { shift } from "@lib/database/schema/shift";
+
+import { integer, pgTable, serial } from "drizzle-orm/pg-core";
 
 export const schedule = pgTable("schedule", {
   id: serial("id").primaryKey(),
