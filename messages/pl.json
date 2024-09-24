@@ -13,7 +13,7 @@
   "add_employee": "Dodaj pracownika",
   "remove": "Usuń",
   "all_employees": "Wszyscy pracownicy",
-  "no_employees": "Brak pracownika w bazie danych",
+  "no_employees": "Brak pracowników w bazie danych",
   "first_name": "Imię",
   "last_name": "Nazwisko",
   "add": "Dodaj",
