@@ -1,15 +1,11 @@
 ---
 import Navbar from "@components/Navbar.astro";
-import CookiesNotice from "@components/CookiesNotice.astro";
-import Cookies from "@lib/cookies";
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
-
-const cookies_accepted = Astro.cookies.has(Cookies.cookies_accepted) && Astro.cookies.get(Cookies.cookies_accepted)?.value === "true";
 ---
 
 <!doctype html>
@@ -24,7 +20,6 @@ const cookies_accepted = Astro.cookies.has(Cookies.cookies_accepted) && Astro.co
   </head>
   <body>
     <Navbar />
-    {!cookies_accepted ? <CookiesNotice /> : null}
     <slot />
   </body>
 </html>
