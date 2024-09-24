@@ -209,7 +209,7 @@ const shifts = await db.select().from(shift);
                 console.log(s);
                 return (
                   <tr class="divide-x">
-                    <td class="p-4">{m.count_on_shift({ shift: s.id, start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
+                    <td class="p-4">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
                     {Array.from(Array(days_count), (_, i) => {
                       i = i + 1;
                       const _day = new Date(year, month - 1, i);

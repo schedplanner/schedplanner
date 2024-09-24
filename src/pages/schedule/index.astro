@@ -46,11 +46,7 @@ const shifts = await db.select().from(shift);
               shifts.map((shift) => {
                 return (
                   <option value={shift.id}>
-                    <span>
-                      {shift.comment ? `${shift.comment}:` : null}
-                      {m.shift_with_number({ shift: shift.id })}
-                      {m.shift_range({ start: fmtShift(shift.start), end: fmtShift(shift.end) })}
-                    </span>
+                    {fmtShift(shift.start)} - {fmtShift(shift.end)}
                   </option>
                 );
               })

@@ -18,7 +18,6 @@
   "add": "Dodaj",
   "no_shifts": "Nie znaleziono zmian w bazie danych!",
   "all_shifts": "Wszystkie zmiany",
-  "shift_with_number": "Zmiana {shift}",
   "shift_range": "Od {start} do {end}",
   "all_locations": "Wszystkie lokacje",
   "add_location": "Dodaj lokację",
@@ -34,5 +33,5 @@
   "shift_start": "Początek zmiany",
   "shift_end": "Koniec zmiany",
   "city": "Miasto",
-  "count_on_shift": "Liczba na zmianie {shift} ({start} - {end})"
+  "count_on_shift": "Liczba na zmianie {start} - {end}"
 }

@@ -18,7 +18,6 @@
   "add": "Add",
   "no_shifts": "No shifts found in the database",
   "all_shifts": "All shifts",
-  "shift_with_number": "Shift {shift}",
   "shift_range": "From {start} to {end}",
   "all_locations": "All locations",
   "add_location": "Add location",
@@ -34,5 +33,5 @@
   "shift_start": "Shift start",
   "shift_end": "Shift end",
   "city": "City",
-  "count_on_shift": "Count on shift {shift} ({start} - {end})"
+  "count_on_shift": "Count on shift {start} - {end}"
 }

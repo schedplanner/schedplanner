@@ -22,7 +22,6 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
     <h3 class="font-bold text-3xl">{m.add_shift()}:</h3>
     <form method="POST" action="/api/shifts" class="flex flex-col gap-8">
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <HTMLInput name="comment" placeholder={m.comment()} type="text" class="sm:col-span-2" />
         <HTMLInput name="start" label={m.shift_start()} type="time" required />
         <HTMLInput name="end" label={m.shift_end()} type="time" required />
       </div>
@@ -39,11 +38,9 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
             {shifts.map((shift) => {
               return (
                 <li class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
-                  <div class="flex flex-col">
-                    {shift.comment ? <span>{shift.comment}</span> : null}
-                    <span>{m.shift_with_number({ shift: shift.id })}</span>
-                    <span>{m.shift_range({ start: fmtShift(shift.start), end: fmtShift(shift.end) })}</span>
-                  </div>
+                  <span>
+                    {fmtShift(shift.start)} - {fmtShift(shift.end)}
+                  </span>
                   <div>
                     <form method="POST" action="/api/shifts/delete">
                       <input name="shift_id" value={shift.id} hidden />
