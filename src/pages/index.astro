@@ -47,13 +47,14 @@ current_location_id = (await db.select({ id: location.id }).from(location).where
 const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id));
 
 const monthFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { month: "long" });
+const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "long" });
 
 const now = new Date();
-const year = now.getFullYear();
+const year = (Astro.url.searchParams.get("year") as unknown as number) || now.getFullYear();
 const month = (Astro.url.searchParams.get("month") as unknown as number) || now.getMonth() + 1;
-const month_str = monthFormat.format(new Date(now.getFullYear(), month, 0));
+const month_str = monthFormat.format(new Date(year, month, 0));
 
-const days_count = new Date(now.getFullYear(), month, 0).getDate();
+const days_count = new Date(year, month, 0).getDate();
 
 const full_schedule = {};
 const total_hours = {};
@@ -104,10 +105,37 @@ for (let e in employees) {
             {
               Array.from(Array(days_count), (_, i) => {
                 i = i + 1;
-                return <th class="text-sm font-normal text-gray-500 bg-gray-50 border-t-[1px]">{i}</th>;
+                const _day = new Date(year, month - 1, i);
+                const is_today = now.getDate() == _day.getDate();
+                const is_sunday = _day.getDay() == 0;
+                return (
+                  <th
+                    class={`text-sm font-normal text-gray-500 ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300" : "bg-gray-50"} border-t-[1px]`}
+                  >
+                    {i}
+                  </th>
+                );
               })
             }
             <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]">Total hours</th>
+          </tr>
+          <tr>
+            <th></th>
+            {
+              Array.from(Array(days_count), (_, i) => {
+                i = i + 1;
+                const _day = new Date(year, month - 1, i);
+                const is_today = now.getDate() == _day.getDate();
+                const is_sunday = _day.getDay() == 0;
+                return (
+                  <th
+                    class={`text-sm font-normal text-gray-500 ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300" : "bg-gray-50"} border-t-[1px]`}
+                  >
+                    {dayFormat.format(_day)}
+                  </th>
+                );
+              })
+            }
           </tr>
         </thead>
         <tbody class="divide-y border-y-[1px]">
@@ -118,8 +146,13 @@ for (let e in employees) {
                   <td class="p-4 text-sm font-bold whitespace-nowrap">{employee.full_name}</td>
                   {Array.from(Array(days_count), (_, i) => {
                     i = i + 1;
+                    const _day = new Date(year, month - 1, i);
+                    const is_today = now.getDate() == _day.getDate();
+                    const is_sunday = _day.getDay() == 0;
                     return (
-                      <td class=" bg-slate-200 bg-opacity-0 hover:bg-opacity-50 transition-colors">
+                      <td
+                        class={`${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0"} hover:bg-opacity-50 transition-colors`}
+                      >
                         <a
                           href={`/schedule?location=${current_location_id}&employee=${employee.id}&month=${month}&day=${i}`}
                           class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12"
