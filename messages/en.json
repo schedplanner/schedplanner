@@ -33,5 +33,6 @@
   "default_location": "default",
   "comment": "Comment",
   "shift_start": "Shift start",
-  "shift_end": "Shift end"
+  "shift_end": "Shift end",
+  "city": "City"
 }

@@ -21,7 +21,7 @@ const locations = await db.select().from(location).orderBy(location.name);
           <HTMLInput name="name" label={m.name()} type="text" required class="col-span-2" />
           <HTMLInput name="street" label={m.street()} type="text" />
           <HTMLInput name="zip_code" label={m.zip_code()} type="text" />
-          <HTMLInput name="city" label="City" type="text" />
+          <HTMLInput name="city" label={m.city()} type="text" />
           <HTMLInput name="country" label={m.country()} type="text" />
 
           <HTMLSubmit label={m.add()} class="col-span-2" />
