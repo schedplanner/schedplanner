@@ -4,6 +4,7 @@ import { db } from "@lib/database";
 import { shift } from "@lib/database/schema/shift";
 import HTMLInput from "@components/HTMLInput.astro";
 import HTMLSubmit from "@components/HTMLSubmit.astro";
+import Remove from "@components/buttons/Remove.astro";
 import { fmtShift } from "@lib/utils";
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
@@ -45,7 +46,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                     <form method="POST" action="/api/shifts/delete">
                       <input name="shift_id" value={shift.id} hidden />
 
-                      <button class="border-b-2">{m.remove()}</button>
+                      <Remove />
                     </form>
                   </div>
                 </li>

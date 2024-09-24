@@ -1,0 +1,8 @@
+---
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
+---
+
+<button class="bg-red-500 text-white text-sm px-2 py-1 rounded-xl hover:bg-opacity-75 transition-colors">{m.remove()}</button>
