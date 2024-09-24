@@ -56,6 +56,7 @@ const month_str = monthFormat.format(new Date(now.getFullYear(), month, 0));
 const days_count = new Date(now.getFullYear(), month, 0).getDate();
 
 const full_schedule = {};
+const total_hours = {};
 
 for (let e in employees) {
   full_schedule[employees[e].id] = {};
@@ -67,6 +68,8 @@ for (let e in employees) {
     .leftJoin(shift, eq(schedule.shift_id, shift.id))
     .orderBy(schedule.day);
 
+  total_hours[employees[e].id] = 0;
+
   employee_schedule
     .filter((s) => {
       return s.shift !== null;
@@ -75,6 +78,15 @@ for (let e in employees) {
       full_schedule[employees[e].id][s.schedule.day] = {};
       full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift!.start);
       full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift!.end);
+
+      const shift_hours =
+        Math.abs(
+          Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.end}`) -
+            Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.start}`)
+        ) /
+        (60 * 60 * 1000);
+
+      total_hours[employees[e].id] += shift_hours;
     });
 }
 ---
@@ -95,6 +107,7 @@ for (let e in employees) {
                 return <th class="text-sm font-normal text-gray-500 bg-gray-50 border-t-[1px]">{i}</th>;
               })
             }
+            <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]">Total hours</th>
           </tr>
         </thead>
         <tbody class="divide-y border-y-[1px]">
@@ -121,6 +134,11 @@ for (let e in employees) {
                       </td>
                     );
                   })}
+                  <td class="text-sm font-bold whitespace-nowrap">
+                    <div class="flex flex-col items-center justify-center min-w-12 min-h-12">
+                      <span class="">{total_hours[employee.id]}</span>
+                    </div>
+                  </td>
                 </tr>
               );
             })
