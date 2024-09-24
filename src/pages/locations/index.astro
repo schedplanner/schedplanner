@@ -20,16 +20,15 @@ const locations = await db.select().from(location).orderBy(location.name);
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-4">
       <h3 class="font-bold text-3xl">{m.add_location()}:</h3>
-      <form method="POST" action="/api/locations">
-        <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-          <HTMLInput name="name" label={m.name()} type="text" required class="col-span-2" />
-          <HTMLInput name="street" label={m.street()} type="text" />
-          <HTMLInput name="zip_code" label={m.zip_code()} type="text" />
-          <HTMLInput name="city" label={m.city()} type="text" />
-          <HTMLInput name="country" label={m.country()} type="text" />
-
-          <HTMLSubmit label={m.add()} class="col-span-2" />
+      <form method="POST" action="/api/locations" class="flex flex-col gap-8">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <HTMLInput name="name" placeholder={m.name()} type="text" required class="sm:col-span-2" />
+          <HTMLInput name="street" placeholder={m.street()} type="text" />
+          <HTMLInput name="zip_code" placeholder={m.zip_code()} type="text" />
+          <HTMLInput name="city" placeholder={m.city()} type="text" />
+          <HTMLInput name="country" placeholder={m.country()} type="text" />
         </div>
+        <HTMLSubmit label={m.add()} class="col-span-2" />
       </form>
 
       {

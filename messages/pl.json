@@ -33,5 +33,6 @@
   "comment": "Komentarz",
   "shift_start": "Początek zmiany",
   "shift_end": "Koniec zmiany",
-  "city": "Miasto"
+  "city": "Miasto",
+  "count_on_shift": "Liczba na zmianie {shift} ({start} - {end})"
 }

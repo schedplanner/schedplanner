@@ -38,10 +38,10 @@ const employees = await db.select().from(employee).where(eq(employee.location_id
 <Subpage title="Employees">
   <div class="flex flex-col gap-4">
     <h3 class="font-bold text-3xl">{m.add_employee()}:</h3>
-    <form method="POST" action="/api/employees">
-      <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-        <HTMLInput name="first_name" label={m.first_name()} type="text" required />
-        <HTMLInput name="last_name" label={m.last_name()} type="text" required />
+    <form method="POST" action="/api/employees" class="flex flex-col gap-8">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required />
+        <HTMLInput name="last_name" placeholder={m.last_name()} type="text" required />
 
         <select name="location_id" hidden>
           {
@@ -56,9 +56,8 @@ const employees = await db.select().from(employee).where(eq(employee.location_id
             })
           }
         </select>
-
-        <HTMLSubmit label={m.add()} class="col-span-2" />
       </div>
+      <HTMLSubmit label={m.add()} class="col-span-2" />
     </form>
 
     {

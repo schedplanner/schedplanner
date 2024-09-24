@@ -1,13 +1,15 @@
 ---
 import Layout from "@layouts/Common.astro";
 
+import HTMLInput from "@components/form/HTMLInput.astro";
+
 import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
 import { employee } from "@lib/database/schema/employee";
 import { location } from "@lib/database/schema/location";
 import { schedule } from "@lib/database/schema/schedule";
 import { shift } from "@lib/database/schema/shift";
-import { fmtShift } from "@lib/utils";
+import { DefaultDict, fmtShift } from "@lib/utils";
 
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
@@ -46,20 +48,19 @@ if (current_location === "") {
 
 current_location_id = (await db.select({ id: location.id }).from(location).where(eq(location.name, current_location)))[0]["id"];
 
-const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id));
+const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id)).orderBy(employee.full_name);
 
-const monthFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { month: "long" });
 const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "long" });
 
 const now = new Date();
 const year = (Astro.url.searchParams.get("year") as unknown as number) || now.getFullYear();
 const month = (Astro.url.searchParams.get("month") as unknown as number) || now.getMonth() + 1;
-const month_str = monthFormat.format(new Date(year, month, 0));
 
 const days_count = new Date(year, month, 0).getDate();
 
 const full_schedule = {};
-const total_hours = {};
+const total_hours = new DefaultDict(Number);
+const shift_counts = new DefaultDict(() => new DefaultDict(Number));
 
 for (let e in employees) {
   full_schedule[employees[e].id] = {};
@@ -71,13 +72,17 @@ for (let e in employees) {
     .leftJoin(shift, eq(schedule.shift_id, shift.id))
     .orderBy(schedule.day);
 
-  total_hours[employees[e].id] = 0;
+  if (employee_schedule.length === 0) continue;
+
+  //   console.log("schedule for", employees[e].full_name, employee_schedule);
 
   employee_schedule
     .filter((s) => {
-      return s.shift !== null;
+      return s.schedule !== null && s.shift !== null;
     })
     .map((s) => {
+      //   console.log("Adding shift", s.shift!.id, "at day", s.schedule.day, "for", employees[e].full_name, s);
+
       full_schedule[employees[e].id][s.schedule.day] = {};
       full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift!.start);
       full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift!.end);
@@ -90,17 +95,26 @@ for (let e in employees) {
         (60 * 60 * 1000);
 
       total_hours[employees[e].id] += shift_hours;
+
+      shift_counts[s.shift!.id][s.schedule.day] += 1;
+      shift_counts[s.shift!.id]["total"] += 1;
     });
 }
+
+const shifts = await db.select().from(shift);
+
+// console.log("shift_counts", shift_counts);
 ---
 
 <Layout title="schedplanner">
   <div>
-    <div class="container p-12 mx-auto">
-      <h3 class="font-bold text-3xl">{m.schedule_title({ month: month_str })}:</h3>
+    <div class="p-4 mx-auto">
+      <form method="POST" action="/api/month" id="date-picker" class="max-w-64">
+        <HTMLInput name="month" type="month" onchange="this.form.submit()" value=`${year}-${String(month).padStart(2, "0")}` />
+      </form>
     </div>
-    <div class="overflow-x-auto">
-      <table class="table-auto min-w-full divide-x divide-gray-200 border-gray-200">
+    <div class="overflow-auto h-[calc(100vh-7.9rem)]">
+      <table class="table-auto min-w-full divide-x divide-gray-200 border-gray-200 border-collapse">
         <thead>
           <tr class="divide-x">
             <th></th>
@@ -108,30 +122,30 @@ for (let e in employees) {
               Array.from(Array(days_count), (_, i) => {
                 i = i + 1;
                 const _day = new Date(year, month - 1, i);
-                const is_today = now.getDate() == _day.getDate();
+                const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
                 const is_sunday = _day.getDay() == 0;
                 return (
                   <th
-                    class={`text-sm font-normal text-gray-500 ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300" : "bg-gray-50"} border-t-[1px]`}
+                    class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
                   >
                     {i}
                   </th>
                 );
               })
             }
-            <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]">Total hours</th>
+            <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]" rowspan="2">Total hours</th>
           </tr>
-          <tr>
+          <tr class="divide-x">
             <th></th>
             {
               Array.from(Array(days_count), (_, i) => {
                 i = i + 1;
                 const _day = new Date(year, month - 1, i);
-                const is_today = now.getDate() == _day.getDate();
+                const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
                 const is_sunday = _day.getDay() == 0;
                 return (
                   <th
-                    class={`text-sm font-normal text-gray-500 ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300" : "bg-gray-50"} border-t-[1px]`}
+                    class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
                   >
                     {dayFormat.format(_day)}
                   </th>
@@ -149,7 +163,7 @@ for (let e in employees) {
                   {Array.from(Array(days_count), (_, i) => {
                     i = i + 1;
                     const _day = new Date(year, month - 1, i);
-                    const is_today = now.getDate() == _day.getDate();
+                    const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
                     const is_sunday = _day.getDay() == 0;
                     return (
                       <td
@@ -177,6 +191,43 @@ for (let e in employees) {
                 </tr>
               );
             })
+          }
+          {
+            shifts
+              .filter((s) => {
+                let found = false;
+                Array.from(Array(days_count), (_, i) => {
+                  if (shift_counts[s.id][i + 1] !== 0) {
+                    console.log(s.id, i + 1, true);
+                    found = true;
+                  }
+                });
+
+                return found;
+              })
+              .map((s) => {
+                console.log(s);
+                return (
+                  <tr class="divide-x">
+                    <td class="p-4">{m.count_on_shift({ shift: s.id, start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
+                    {Array.from(Array(days_count), (_, i) => {
+                      i = i + 1;
+                      const _day = new Date(year, month - 1, i);
+                      const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+                      const is_sunday = _day.getDay() == 0;
+                      const count = shift_counts[s.id][i];
+                      return (
+                        <th
+                          class={`text-sm ${count != 0 ? "font-bolder" : "font-normal"} ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                        >
+                          {count}
+                        </th>
+                      );
+                    })}
+                    <td />
+                  </tr>
+                );
+              })
           }
         </tbody>
       </table>

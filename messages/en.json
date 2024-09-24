@@ -33,5 +33,6 @@
   "comment": "Comment",
   "shift_start": "Shift start",
   "shift_end": "Shift end",
-  "city": "City"
+  "city": "City",
+  "count_on_shift": "Count on shift {shift} ({start} - {end})"
 }
