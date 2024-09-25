@@ -4,12 +4,6 @@ import { schedule } from "@lib/database/schema/schedule";
 import type { APIRoute } from "astro";
 import { and, eq } from "drizzle-orm";
 
-export const GET: APIRoute = async () => {
-  const schedules = await db.select().from(schedule);
-
-  return new Response(JSON.stringify(schedules), { headers: { "Content-Type": "application/json" } });
-};
-
 export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
@@ -19,19 +13,19 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const month = form_data.get("month") as unknown as number;
   const day = form_data.get("day") as unknown as number;
 
-  const insert_data = {
-    shift_id: shift_id,
-    employee_id: employee_id,
-    year: year,
-    month: month,
-    day: day,
-  };
+  console.log(form_data);
 
   await db
     .delete(schedule)
-    .where(and(eq(schedule.employee_id, employee_id), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
-
-  await db.insert(schedule).values(insert_data);
+    .where(
+      and(
+        eq(schedule.shift_id, shift_id),
+        eq(schedule.employee_id, employee_id),
+        eq(schedule.year, year),
+        eq(schedule.month, month),
+        eq(schedule.day, day)
+      )
+    );
 
   return redirect("/");
 };
