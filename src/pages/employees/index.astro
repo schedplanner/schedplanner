@@ -65,7 +65,7 @@ const employees = await db.select().from(employee).where(eq(employee.location_id
         <span class="font-bold text-xl text-center">{m.no_employees()}</span>
       ) : (
         <div class="flex flex-col gap-4">
-          <h3 class="font-bold text-xl">{m.all_employees()}:</h3>
+          <h4 class="font-bold text-xl">{m.all_employees()}:</h4>
           <ul class="grid grid-cols-4 gap-4">
             {employees.map((employee) => {
               return (
