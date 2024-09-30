@@ -1,11 +1,6 @@
 ---
-import Layout from "@layouts/Common.astro";
+import PrintLayout from "@layouts/Print.astro";
 
-import MonthButton from "@components/buttons/MonthButton.astro";
-import HTMLInput from "@components/form/HTMLInput.astro";
-import AddSchedule from "@components/modals/AddSchedule.astro";
-
-import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
 import { employee } from "@lib/database/schema/employee";
 import { location } from "@lib/database/schema/location";
@@ -20,35 +15,9 @@ import { and, eq } from "drizzle-orm";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
-if ((await db.select().from(location)).length === 0) {
-  console.log("No locations found in the database! Redirecting to /locations so the user can add one.");
-  return Astro.redirect("/locations");
-}
-
-let current_location = "";
-let current_location_id = -1;
-
-if (Astro.cookies.has(Cookies.current_location)) {
-  current_location = Astro.cookies.get(Cookies.current_location)?.value || "";
-  if (current_location !== "" && (await db.select().from(location).where(eq(location.name, current_location))).length == 0) {
-    console.warn(`Location '${current_location}' not found in the database! Clearing the cookie.`);
-    Astro.cookies.delete(Cookies.current_location);
-    current_location = "";
-  }
-}
-
-if (current_location === "") {
-  const default_location = (await db.select({ name: location.name }).from(location).where(eq(location.default_location, true)))[0]["name"];
-  current_location = default_location;
-  Astro.cookies.set(Cookies.current_location, current_location);
-}
-
-if (current_location === "") {
-  console.log("Current location is for some reason not set, redirecting to /locations");
-  return Astro.redirect("/locations");
-}
-
-current_location_id = (await db.select({ id: location.id }).from(location).where(eq(location.name, current_location)))[0]["id"];
+const current_location_id =
+  (Astro.url.searchParams.get("location") as unknown as number) ||
+  (await db.select({ name: location.name }).from(location).where(eq(location.default_location, true)))[0]["id"];
 
 const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id)).orderBy(employee.full_name);
 
@@ -102,21 +71,8 @@ for (let e in employees) {
 const shifts = await db.select().from(shift);
 ---
 
-<Layout title="SchedPlanner">
-  <div class="p-4 mx-auto flex flex-row justify-between gap-4 items-center">
-    <MonthButton icon="mdi:arrow-left" text="Previous" href={`/?year=${year}&month=${Number(month) - 1}`} />
-    <form method="POST" action="/api/month" id="date-picker" class="max-w-64">
-      <HTMLInput
-        name="month"
-        type="month"
-        onchange="this.form.submit()"
-        value=`${year}-${String(month).padStart(2, "0")}`
-        class="flex flex-row items-center"
-      />
-    </form>
-    <MonthButton icon="mdi:arrow-right" text="Next" class="flex-row-reverse" href={`/?year=${year}&month=${Number(month) + 1}`} />
-  </div>
-  <div class="overflow-auto h-[calc(100vh-10.1rem)]">
+<PrintLayout>
+  <div>
     <table class="table-auto min-w-full divide-x divide-gray-200 border-gray-200 border-collapse">
       <thead>
         <tr class="divide-x">
@@ -182,7 +138,6 @@ const shifts = await db.select().from(shift);
                           </>
                         ) : null}
                       </button>
-                      <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
                     </td>
                   );
                 })}
@@ -232,10 +187,5 @@ const shifts = await db.select().from(shift);
         }
       </tbody>
     </table>
-    <div class="m-4">
-      <button class="bg-blue-500 text-white text-sm px-4 py-2 rounded-xl hover:bg-opacity-75 transition-colors">
-        <a href={`/print?location=${current_location_id}&year=${year}&month=${month}`}>Print</a>
-      </button>
-    </div>
   </div>
-</Layout>
+</PrintLayout>
