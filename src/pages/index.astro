@@ -103,136 +103,134 @@ const shifts = await db.select().from(shift);
 ---
 
 <Layout title="SchedPlanner">
-  <div>
-    <div class="p-4 mx-auto flex flex-row justify-between gap-4 items-center">
-      <MonthButton icon="mdi:arrow-left" text="Previous" href={`/?year=${year}&month=${Number(month) - 1}`} />
-      <form method="POST" action="/api/month" id="date-picker" class="max-w-64">
-        <HTMLInput
-          name="month"
-          type="month"
-          onchange="this.form.submit()"
-          value=`${year}-${String(month).padStart(2, "0")}`
-          class="flex flex-row items-center"
-        />
-      </form>
-      <MonthButton icon="mdi:arrow-right" text="Next" class="flex-row-reverse" href={`/?year=${year}&month=${Number(month) + 1}`} />
-    </div>
-    <div class="overflow-auto h-[calc(100vh-10.1rem)]">
-      <table class="table-auto min-w-full divide-x divide-gray-200 border-gray-200 border-collapse">
-        <thead>
-          <tr class="divide-x">
-            <th></th>
-            {
-              Array.from(Array(days_count), (_, i) => {
-                i = i + 1;
-                const _day = new Date(year, month - 1, i);
-                const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-                const is_sunday = _day.getDay() == 0;
-                return (
-                  <th
-                    class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
-                  >
-                    {i}
-                  </th>
-                );
-              })
-            }
-            <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]" rowspan="2">Total hours</th>
-          </tr>
-          <tr class="divide-x">
-            <th></th>
-            {
-              Array.from(Array(days_count), (_, i) => {
-                i = i + 1;
-                const _day = new Date(year, month - 1, i);
-                const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-                const is_sunday = _day.getDay() == 0;
-                return (
-                  <th
-                    class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
-                  >
-                    {dayFormat.format(_day)}
-                  </th>
-                );
-              })
-            }
-          </tr>
-        </thead>
-        <tbody class="divide-y border-y-[1px]">
+  <div class="p-4 mx-auto flex flex-row justify-between gap-4 items-center">
+    <MonthButton icon="mdi:arrow-left" text="Previous" href={`/?year=${year}&month=${Number(month) - 1}`} />
+    <form method="POST" action="/api/month" id="date-picker" class="max-w-64">
+      <HTMLInput
+        name="month"
+        type="month"
+        onchange="this.form.submit()"
+        value=`${year}-${String(month).padStart(2, "0")}`
+        class="flex flex-row items-center"
+      />
+    </form>
+    <MonthButton icon="mdi:arrow-right" text="Next" class="flex-row-reverse" href={`/?year=${year}&month=${Number(month) + 1}`} />
+  </div>
+  <div class="overflow-auto h-[calc(100vh-10.1rem)]">
+    <table class="table-auto min-w-full divide-x divide-gray-200 border-gray-200 border-collapse">
+      <thead>
+        <tr class="divide-x">
+          <th></th>
           {
-            employees.map((employee) => {
+            Array.from(Array(days_count), (_, i) => {
+              i = i + 1;
+              const _day = new Date(year, month - 1, i);
+              const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+              const is_sunday = _day.getDay() == 0;
+              return (
+                <th
+                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                >
+                  {i}
+                </th>
+              );
+            })
+          }
+          <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]" rowspan="2">Total hours</th>
+        </tr>
+        <tr class="divide-x">
+          <th></th>
+          {
+            Array.from(Array(days_count), (_, i) => {
+              i = i + 1;
+              const _day = new Date(year, month - 1, i);
+              const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+              const is_sunday = _day.getDay() == 0;
+              return (
+                <th
+                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                >
+                  {dayFormat.format(_day)}
+                </th>
+              );
+            })
+          }
+        </tr>
+      </thead>
+      <tbody class="divide-y border-y-[1px]">
+        {
+          employees.map((employee) => {
+            return (
+              <tr class="divide-x">
+                <td class="p-4 text-sm font-bold whitespace-nowrap">{employee.full_name}</td>
+                {Array.from(Array(days_count), (_, i) => {
+                  i = i + 1;
+                  const _day = new Date(year, month - 1, i);
+                  const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+                  const is_sunday = _day.getDay() == 0;
+
+                  const _id = "id" + Math.random().toString(16).slice(2);
+                  return (
+                    <td
+                      class={`${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0"} hover:bg-opacity-50 transition-colors`}
+                    >
+                      <button class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12" onclick={`window.${_id}.showModal()`}>
+                        {full_schedule[employee.id][i] ? (
+                          <>
+                            <span>{full_schedule[employee.id][i]["start"]}</span>
+                            <span>{full_schedule[employee.id][i]["end"]}</span>
+                          </>
+                        ) : null}
+                      </button>
+                      <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
+                    </td>
+                  );
+                })}
+                <td class="text-sm font-bold whitespace-nowrap">
+                  <div class="flex flex-col items-center justify-center min-w-12 min-h-12">
+                    <span class="">{total_hours[employee.id]}</span>
+                  </div>
+                </td>
+              </tr>
+            );
+          })
+        }
+        {
+          shifts
+            .filter((s) => {
+              let found = false;
+              Array.from(Array(days_count), (_, i) => {
+                if (shift_counts[s.id][i + 1] !== 0) {
+                  found = true;
+                }
+              });
+
+              return found;
+            })
+            .map((s) => {
               return (
                 <tr class="divide-x">
-                  <td class="p-4 text-sm font-bold whitespace-nowrap">{employee.full_name}</td>
+                  <td class="p-4">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
                   {Array.from(Array(days_count), (_, i) => {
                     i = i + 1;
                     const _day = new Date(year, month - 1, i);
                     const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
                     const is_sunday = _day.getDay() == 0;
-
-                    const _id = "id" + Math.random().toString(16).slice(2);
+                    const count = shift_counts[s.id][i];
                     return (
-                      <td
-                        class={`${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0"} hover:bg-opacity-50 transition-colors`}
+                      <th
+                        class={`text-sm ${count != 0 ? "font-bolder" : "font-normal"} ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
                       >
-                        <button class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12" onclick={`window.${_id}.showModal()`}>
-                          {full_schedule[employee.id][i] ? (
-                            <>
-                              <span>{full_schedule[employee.id][i]["start"]}</span>
-                              <span>{full_schedule[employee.id][i]["end"]}</span>
-                            </>
-                          ) : null}
-                        </button>
-                        <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
-                      </td>
+                        {count}
+                      </th>
                     );
                   })}
-                  <td class="text-sm font-bold whitespace-nowrap">
-                    <div class="flex flex-col items-center justify-center min-w-12 min-h-12">
-                      <span class="">{total_hours[employee.id]}</span>
-                    </div>
-                  </td>
+                  <td />
                 </tr>
               );
             })
-          }
-          {
-            shifts
-              .filter((s) => {
-                let found = false;
-                Array.from(Array(days_count), (_, i) => {
-                  if (shift_counts[s.id][i + 1] !== 0) {
-                    found = true;
-                  }
-                });
-
-                return found;
-              })
-              .map((s) => {
-                return (
-                  <tr class="divide-x">
-                    <td class="p-4">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
-                    {Array.from(Array(days_count), (_, i) => {
-                      i = i + 1;
-                      const _day = new Date(year, month - 1, i);
-                      const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-                      const is_sunday = _day.getDay() == 0;
-                      const count = shift_counts[s.id][i];
-                      return (
-                        <th
-                          class={`text-sm ${count != 0 ? "font-bolder" : "font-normal"} ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
-                        >
-                          {count}
-                        </th>
-                      );
-                    })}
-                    <td />
-                  </tr>
-                );
-              })
-          }
-        </tbody>
-      </table>
-    </div>
+        }
+      </tbody>
+    </table>
   </div>
 </Layout>
