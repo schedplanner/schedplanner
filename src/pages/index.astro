@@ -172,17 +172,19 @@ const shifts = await db.select().from(shift);
                       <td
                         class={`${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0"} hover:bg-opacity-50 transition-colors`}
                       >
-                        <a
-                          href={`/schedule?employee=${employee.id}&year=${year}&month=${month}&day=${i}`}
-                          class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12"
-                        >
-                          {full_schedule[employee.id][i] ? (
-                            <>
-                              <span>{full_schedule[employee.id][i]["start"]}</span>
-                              <span>{full_schedule[employee.id][i]["end"]}</span>
-                            </>
-                          ) : null}
-                        </a>
+                        <button>
+                          <a
+                            href={`/schedule?employee=${employee.id}&year=${year}&month=${month}&day=${i}`}
+                            class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12"
+                          >
+                            {full_schedule[employee.id][i] ? (
+                              <>
+                                <span>{full_schedule[employee.id][i]["start"]}</span>
+                                <span>{full_schedule[employee.id][i]["end"]}</span>
+                              </>
+                            ) : null}
+                          </a>
+                        </button>
                       </td>
                     );
                   })}

@@ -16,7 +16,7 @@ const locations = await db.select().from(location).orderBy(location.name);
       <span class="font-bold">{m.no_locations()}</span>
     ) : (
       <form method="POST" action="/api/locations/current" id="location-picker" class="flex flex-col gap-2 max-w-32 sm:max-w-none">
-        <select name="chosen_location" onchange="this.form.submit()" required value={current_location}>
+        <select name="chosen_location" onchange="this.form.submit()" required value={current_location} class="bg-inherit">
           {locations.map((location) => {
             const is_current_location = location.name === current_location;
 

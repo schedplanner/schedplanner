@@ -8,7 +8,7 @@ import { Icon } from "astro-icon/components";
 
 <div class="flex flex-row gap-4 items-center justify-between p-2 px-4 bg-gray-100">
   <div class="flex flex-row items-center gap-4">
-    <h1><a href="/">{m.navbar_title()}</a></h1>
+    <h1><button><a href="/">{m.navbar_title()}</a></button></h1>
     <LocationPicker />
   </div>
   <ul class="flex flex-row gap-2">
@@ -20,10 +20,12 @@ import { Icon } from "astro-icon/components";
       ].map(([url, name, icon]) => {
         return (
           <li>
-            <a href={url} class="flex flex-row items-center gap-2">
-              <Icon name={icon} class="text-xl" />
-              <span class="hidden lg:block">{name}</span>
-            </a>
+            <button>
+              <a href={url} class="flex flex-row items-center gap-2">
+                <Icon name={icon} class="text-xl" />
+                <span class="hidden lg:block">{name}</span>
+              </a>
+            </button>
           </li>
         );
       })
