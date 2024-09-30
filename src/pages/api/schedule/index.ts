@@ -19,19 +19,25 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const month = form_data.get("month") as unknown as number;
   const day = form_data.get("day") as unknown as number;
 
-  const insert_data = {
-    shift_id: shift_id,
-    employee_id: employee_id,
-    year: year,
-    month: month,
-    day: day,
-  };
+  if (isNaN(shift_id)) {
+    await db
+      .delete(schedule)
+      .where(and(eq(schedule.employee_id, employee_id), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
+  } else {
+    const insert_data = {
+      shift_id: shift_id,
+      employee_id: employee_id,
+      year: year,
+      month: month,
+      day: day,
+    };
 
-  await db
-    .delete(schedule)
-    .where(and(eq(schedule.employee_id, employee_id), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
+    await db
+      .delete(schedule)
+      .where(and(eq(schedule.employee_id, employee_id), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
 
-  await db.insert(schedule).values(insert_data);
+    await db.insert(schedule).values(insert_data);
+  }
 
   return redirect("/");
 };

@@ -3,6 +3,7 @@ import Layout from "@layouts/Common.astro";
 
 import MonthButton from "@components/buttons/MonthButton.astro";
 import HTMLInput from "@components/form/HTMLInput.astro";
+import AddSchedule from "@components/modals/AddSchedule.astro";
 
 import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
@@ -168,23 +169,21 @@ const shifts = await db.select().from(shift);
                     const _day = new Date(year, month - 1, i);
                     const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
                     const is_sunday = _day.getDay() == 0;
+
+                    const _id = "id" + Math.random().toString(16).slice(2);
                     return (
                       <td
                         class={`${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0"} hover:bg-opacity-50 transition-colors`}
                       >
-                        <button>
-                          <a
-                            href={`/schedule?employee=${employee.id}&year=${year}&month=${month}&day=${i}`}
-                            class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12"
-                          >
-                            {full_schedule[employee.id][i] ? (
-                              <>
-                                <span>{full_schedule[employee.id][i]["start"]}</span>
-                                <span>{full_schedule[employee.id][i]["end"]}</span>
-                              </>
-                            ) : null}
-                          </a>
+                        <button class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12" onclick={`window.${_id}.showModal()`}>
+                          {full_schedule[employee.id][i] ? (
+                            <>
+                              <span>{full_schedule[employee.id][i]["start"]}</span>
+                              <span>{full_schedule[employee.id][i]["end"]}</span>
+                            </>
+                          ) : null}
                         </button>
+                        <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
                       </td>
                     );
                   })}
