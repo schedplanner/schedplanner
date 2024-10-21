@@ -195,6 +195,43 @@ const shifts = await db.select().from(shift);
             );
           })
         }
+        <tr class="divide-x">
+          <th></th>
+          {
+            Array.from(Array(days_count), (_, i) => {
+              i = i + 1;
+              const _day = new Date(year, month - 1, i);
+              const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+              const is_sunday = _day.getDay() == 0;
+              return (
+                <th
+                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                >
+                  {i}
+                </th>
+              );
+            })
+          }
+          <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]" rowspan="2">Total hours</th>
+        </tr>
+        <tr class="divide-x">
+          <th></th>
+          {
+            Array.from(Array(days_count), (_, i) => {
+              i = i + 1;
+              const _day = new Date(year, month - 1, i);
+              const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+              const is_sunday = _day.getDay() == 0;
+              return (
+                <th
+                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                >
+                  {dayFormat.format(_day)}
+                </th>
+              );
+            })
+          }
+        </tr>
         {
           shifts
             .filter((s) => {
