@@ -52,7 +52,7 @@ current_location_id = (await db.select({ id: location.id }).from(location).where
 
 const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id)).orderBy(employee.full_name);
 
-const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "long" });
+const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "short" });
 
 const now = new Date();
 const year = (Astro.url.searchParams.get("year") as unknown as number) || now.getFullYear();
