@@ -117,10 +117,9 @@ const shifts = await db.select().from(shift);
     <MonthButton icon="mdi:arrow-right" text="Next" class="flex-row-reverse" href={`/?year=${year}&month=${Number(month) + 1}`} />
   </div>
   <div class="overflow-auto h-[calc(100vh-10.1rem)]">
-    <table class="table-auto min-w-full divide-x divide-gray-200 border-gray-200 border-collapse">
-      <thead>
-        <tr class="divide-x">
-          <th></th>
+    <table class="table-auto min-w-full border-collapse text-sm">
+        <tr>
+          <td class="font-bold text-left px-4" rowspan="2">Employee</td>
           {
             Array.from(Array(days_count), (_, i) => {
               i = i + 1;
@@ -128,18 +127,20 @@ const shifts = await db.select().from(shift);
               const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
               const is_sunday = _day.getDay() == 0;
               return (
-                <th
-                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                <td
+                  class:list={[
+                    "text-center border-[1px] border-b-0",
+                    is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "bg-gray-50 text-gray-800",
+                  ]}
                 >
                   {i}
-                </th>
+                </td>
               );
             })
           }
-          <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]" rowspan="2">Total hours</th>
+          <td class="px-4 font-normal bg-gray-50 border-[1px]" rowspan="2">Total hours</td>
         </tr>
-        <tr class="divide-x">
-          <th></th>
+        <tr>
           {
             Array.from(Array(days_count), (_, i) => {
               i = i + 1;
@@ -147,22 +148,20 @@ const shifts = await db.select().from(shift);
               const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
               const is_sunday = _day.getDay() == 0;
               return (
-                <th
-                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                <td
+                  class:list={["text-center font-normal border-[1px] border-t-0", is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"]}}
                 >
                   {dayFormat.format(_day)}
-                </th>
+                </td>
               );
             })
           }
         </tr>
-      </thead>
-      <tbody class="divide-y border-y-[1px]">
         {
           employees.map((employee) => {
             return (
-              <tr class="divide-x">
-                <td class="p-4 text-sm font-bold whitespace-nowrap">{employee.full_name}</td>
+              <tr>
+                <td class="px-4  whitespace-nowrap h-fit border-[1px]">{employee.full_name}</td>
                 {Array.from(Array(days_count), (_, i) => {
                   i = i + 1;
                   const _day = new Date(year, month - 1, i);
@@ -172,9 +171,9 @@ const shifts = await db.select().from(shift);
                   const _id = "id" + Math.random().toString(16).slice(2);
                   return (
                     <td
-                      class={`${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0"} hover:bg-opacity-50 transition-colors`}
+                      class:list={[is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0", "hover:bg-opacity-50 transition-colors border-[1px]"]}
                     >
-                      <button class="text-sm flex flex-col items-center justify-center min-w-12 min-h-12" onclick={`window.${_id}.showModal()`}>
+                      <button class="flex flex-col items-center justify-center min-w-10 min-h-10" onclick={`window.${_id}.showModal()`}>
                         {full_schedule[employee.id][i] ? (
                           <>
                             <span>{full_schedule[employee.id][i]["start"]}</span>
@@ -186,8 +185,8 @@ const shifts = await db.select().from(shift);
                     </td>
                   );
                 })}
-                <td class="text-sm font-bold whitespace-nowrap">
-                  <div class="flex flex-col items-center justify-center min-w-12 min-h-12">
+                <td class=" font-bold whitespace-nowrap border-[1px]">
+                  <div class="flex flex-col items-center justify-center min-w-10 min-h-10">
                     <span class="">{total_hours[employee.id]}</span>
                   </div>
                 </td>
@@ -195,8 +194,8 @@ const shifts = await db.select().from(shift);
             );
           })
         }
-        <tr class="divide-x">
-          <th></th>
+        <tr>
+          <td class="font-bold text-left px-4" rowspan="2" >Counts on shifts</th>
           {
             Array.from(Array(days_count), (_, i) => {
               i = i + 1;
@@ -204,18 +203,14 @@ const shifts = await db.select().from(shift);
               const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
               const is_sunday = _day.getDay() == 0;
               return (
-                <th
-                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
-                >
+                <td class:list={["text-center", is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "bg-gray-50 text-gray-800 border-[1px] border-b-0"]}>
                   {i}
-                </th>
+                </td>
               );
             })
           }
-          <th class="px-4 text-sm font-normal bg-gray-50 border-t-[1px]" rowspan="2">Total hours</th>
         </tr>
-        <tr class="divide-x">
-          <th></th>
+        <tr>
           {
             Array.from(Array(days_count), (_, i) => {
               i = i + 1;
@@ -223,11 +218,11 @@ const shifts = await db.select().from(shift);
               const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
               const is_sunday = _day.getDay() == 0;
               return (
-                <th
-                  class={`text-sm font-normal ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                <td
+                  class:list={["font-normal text-center", is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500 border-[1px] border-t-0"]}}
                 >
                   {dayFormat.format(_day)}
-                </th>
+                </td>
               );
             })
           }
@@ -246,8 +241,8 @@ const shifts = await db.select().from(shift);
             })
             .map((s) => {
               return (
-                <tr class="divide-x">
-                  <td class="p-4">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
+                <tr>
+                  <td class="px-4 h-fit min-w-64 border-[1px]">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
                   {Array.from(Array(days_count), (_, i) => {
                     i = i + 1;
                     const _day = new Date(year, month - 1, i);
@@ -255,19 +250,17 @@ const shifts = await db.select().from(shift);
                     const is_sunday = _day.getDay() == 0;
                     const count = shift_counts[s.id][i];
                     return (
-                      <th
-                        class={`text-sm ${count != 0 ? "font-bolder" : "font-normal"} ${is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500"} border-t-[1px]`}
+                      <td
+                        class:list={["h-fit text-center border-[1px]", count != 0 ? "font-bolder" : "font-normal", is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "text-gray-800"]}
                       >
                         {count}
-                      </th>
+                      </td>
                     );
                   })}
-                  <td />
                 </tr>
               );
             })
         }
-      </tbody>
     </table>
   </div>
 </Layout>
