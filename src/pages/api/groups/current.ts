@@ -5,9 +5,9 @@ import type { APIRoute } from "astro";
 export const POST: APIRoute = async ({ cookies, request, redirect }) => {
   const form_data = await request.formData();
 
-  const chosen_location = form_data.get("chosen_location") as string;
+  const chosen_group = form_data.get("chosen_group") as string;
 
-  cookies.set(Cookies.current_location, chosen_location, {
+  cookies.set(Cookies.current_group, chosen_group, {
     httpOnly: true,
     sameSite: "strict",
     path: "/",

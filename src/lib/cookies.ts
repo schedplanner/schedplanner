@@ -1,3 +1,3 @@
 export default {
-  current_location: "current_location",
+  current_group: "current_group",
 };
