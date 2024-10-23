@@ -81,6 +81,7 @@ for (let e in employees) {
       full_schedule[employees[e].id][s.schedule.day] = {};
       full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift!.start);
       full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift!.end);
+      full_schedule[employees[e].id][s.schedule.day]["color"] = s.shift!.color;
 
       const shift_hours =
         Math.abs(
@@ -164,13 +165,15 @@ const shifts = await db.select().from(shift);
                   const _day = new Date(year, month - 1, i);
                   const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
                   const is_sunday = _day.getDay() == 0;
+                  const color = full_schedule[employee.id][i] ? full_schedule[employee.id][i]["color"] : ""
 
                   const _id = "id" + Math.random().toString(16).slice(2);
                   return (
                     <td
-                      class:list={[is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0", "hover:bg-opacity-50 transition-colors border-[1px]"]}
+                    style={{backgroundColor: color}}
+                      class:list={[!color ? is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0" : "", "hover:bg-opacity-50 transition-colors border-[1px]"]}
                     >
-                      <button class="flex flex-col items-center justify-center min-w-10 min-h-10" onclick={`window.${_id}.showModal()`}>
+                      <button class="flex flex-col items-center justify-center min-w-10 min-h-10 invert mix-blend-difference" onclick={`window.${_id}.showModal()`}>
                         {full_schedule[employee.id][i] ? (
                           <>
                             <span>{full_schedule[employee.id][i]["start"]}</span>

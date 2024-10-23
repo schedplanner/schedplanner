@@ -15,6 +15,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   await db.insert(shift).values({
     start: form_data.get("start") as string,
     end: form_data.get("end") as string,
+    color: form_data.get("color") as string,
   });
 
   return redirect(request.headers.get("referer") || "/");

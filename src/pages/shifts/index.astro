@@ -24,6 +24,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <HTMLInput name="start" label={m.shift_start()} type="time" required />
         <HTMLInput name="end" label={m.shift_end()} type="time" required />
+        <HTMLInput name="color" label="Color" type="color" />
       </div>
       <HTMLSubmit label={m.add()} class="col-span-2" />
     </form>
@@ -37,8 +38,8 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
           <ul class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {shifts.map((shift) => {
               return (
-                <li class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
-                  <span>
+                <li style={{ backgroundColor: shift.color }} class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
+                  <span class={shift.color ? "invert mix-blend-difference" : ""}>
                     {fmtShift(shift.start)} - {fmtShift(shift.end)}
                   </span>
                   <div>
