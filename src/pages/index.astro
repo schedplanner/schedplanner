@@ -7,10 +7,7 @@ import AddSchedule from "@components/modals/AddSchedule.astro";
 
 import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
-import { employee } from "@lib/database/schema/employee";
-import { location } from "@lib/database/schema/location";
-import { schedule } from "@lib/database/schema/schedule";
-import { shift } from "@lib/database/schema/shift";
+import { employee, group, schedule, shift } from "@lib/database/schema";
 import { DefaultDict, fmtShift } from "@lib/utils";
 
 import * as m from "@paraglide/messages";
@@ -20,37 +17,37 @@ import { and, eq } from "drizzle-orm";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
-if ((await db.select().from(location)).length === 0) {
-  console.log("No locations found in the database! Redirecting to /locations so the user can add one.");
-  return Astro.redirect("/locations");
+if ((await db.select().from(group)).length === 0) {
+  console.log("No groups found in the database! Redirecting to /groups so the user can add one.");
+  return Astro.redirect("/groups");
 }
 
-let current_location = "";
-let current_location_id = -1;
+let currentGroup = "";
+let currentGroupId = -1;
 
-if (Astro.cookies.has(Cookies.current_location)) {
-  current_location = Astro.cookies.get(Cookies.current_location)?.value || "";
-  if (current_location !== "" && (await db.select().from(location).where(eq(location.name, current_location))).length == 0) {
-    console.warn(`Location '${current_location}' not found in the database! Clearing the cookie.`);
-    Astro.cookies.delete(Cookies.current_location);
-    current_location = "";
+if (Astro.cookies.has(Cookies.currentGroup)) {
+  currentGroup = Astro.cookies.get(Cookies.currentGroup)?.value || "";
+  if (currentGroup !== "" && (await db.select().from(group).where(eq(group.name, currentGroup))).length == 0) {
+    console.warn(`Location '${currentGroup}' not found in the database! Clearing the cookie.`);
+    Astro.cookies.delete(Cookies.currentGroup);
+    currentGroup = "";
   }
 }
 
-if (current_location === "") {
-  const default_location = (await db.select({ name: location.name }).from(location).where(eq(location.default_location, true)))[0]["name"];
-  current_location = default_location;
-  Astro.cookies.set(Cookies.current_location, current_location);
+if (currentGroup === "") {
+  const default_group = (await db.select({ name: group.name }).from(group).where(eq(group.defaultGroup, true)))[0]["name"];
+  currentGroup = default_group;
+  Astro.cookies.set(Cookies.currentGroup, currentGroup);
 }
 
-if (current_location === "") {
-  console.log("Current location is for some reason not set, redirecting to /locations");
-  return Astro.redirect("/locations");
+if (currentGroup === "") {
+  console.log("Current group is for some reason not set, redirecting to /groups");
+  return Astro.redirect("/groups");
 }
 
-current_location_id = (await db.select({ id: location.id }).from(location).where(eq(location.name, current_location)))[0]["id"];
+currentGroupId = (await db.select({ id: group.id }).from(group).where(eq(group.name, currentGroup)))[0]["id"];
 
-const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id)).orderBy(employee.full_name);
+const employees = await db.select().from(employee).where(eq(employee.groupId, currentGroupId)).orderBy(employee.lastName, employee.firstName);
 
 const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "short" });
 
@@ -70,8 +67,8 @@ for (let e in employees) {
   const employee_schedule = await db
     .select()
     .from(schedule)
-    .where(and(eq(schedule.employee_id, employees[e].id), eq(schedule.year, year), eq(schedule.month, month)))
-    .leftJoin(shift, eq(schedule.shift_id, shift.id))
+    .where(and(eq(schedule.employeeId, employees[e].id), eq(schedule.year, year), eq(schedule.month, month)))
+    .leftJoin(shift, eq(schedule.shiftId, shift.id))
     .orderBy(schedule.day);
 
   if (employee_schedule.length === 0) continue;
@@ -161,7 +158,7 @@ const shifts = await db.select().from(shift);
           employees.map((employee) => {
             return (
               <tr>
-                <td class="px-4  whitespace-nowrap h-fit border-[1px]">{employee.full_name}</td>
+                <td class="px-4  whitespace-nowrap h-fit border-[1px]">{employee.firstName} {employee.lastName}</td>
                 {Array.from(Array(days_count), (_, i) => {
                   i = i + 1;
                   const _day = new Date(year, month - 1, i);

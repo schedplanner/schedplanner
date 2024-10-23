@@ -3,8 +3,7 @@ import Subpage from "@layouts/Subpage.astro";
 
 import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
-import { employee } from "@lib/database/schema/employee";
-import { location } from "@lib/database/schema/location";
+import { employee, group } from "@lib/database/schema";
 
 import Remove from "@components/buttons/Remove.astro";
 import HTMLInput from "@components/form/HTMLInput.astro";
@@ -17,22 +16,20 @@ import { eq } from "drizzle-orm";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
-if ((await db.select().from(location)).length == 0) {
-  console.log("No locations found in the database! Redirecting to /locations so the user can add one.");
-  return Astro.redirect("/locations");
+if ((await db.select().from(group)).length == 0) {
+  console.log("No groups found in the database! Redirecting to /groups so the user can add one.");
+  return Astro.redirect("/groups");
 }
 
-let current_location = (Astro.cookies.get(Cookies.current_location) || {})?.value || "";
+let current_group = (Astro.cookies.get(Cookies.currentGroup) || {})?.value || "";
 
-if (!current_location || current_location === "") {
+if (current_group === "") {
   Astro.redirect("/");
 }
 
-const locations = await db.select().from(location).orderBy(location.name);
+let current_group_id = (await db.select({ id: group.id }).from(group).where(eq(group.name, current_group)))[0].id;
 
-let current_location_id = (await db.select({ id: location.id }).from(location).where(eq(location.name, current_location)))[0]["id"];
-
-const employees = await db.select().from(employee).where(eq(employee.location_id, current_location_id)).orderBy(employee.full_name);
+const employees = await db.select().from(employee).where(eq(employee.groupId, current_group_id)).orderBy(employee.lastName, employee.firstName);
 ---
 
 <Subpage title="Employees">
@@ -43,19 +40,7 @@ const employees = await db.select().from(employee).where(eq(employee.location_id
         <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required />
         <HTMLInput name="last_name" placeholder={m.last_name()} type="text" required />
 
-        <select name="location_id" hidden>
-          {
-            locations.map((location) => {
-              const is_current_location = location.name === current_location;
-
-              return (
-                <option value={location.id} selected={is_current_location}>
-                  {location.name}
-                </option>
-              );
-            })
-          }
-        </select>
+        <input type="number" name="group_id" value={current_group_id} hidden />
       </div>
       <HTMLSubmit label={m.add()} class="col-span-2" />
     </form>
@@ -70,7 +55,9 @@ const employees = await db.select().from(employee).where(eq(employee.location_id
             {employees.map((employee) => {
               return (
                 <li class="flex flex-col justify-between gap-4 border-2 rounded-xl px-4 py-2">
-                  <span class="font-bold">{employee.full_name}</span>
+                  <span class="font-bold">
+                    {employee.firstName} {employee.lastName}
+                  </span>
                   <div>
                     <form method="POST" action="/api/employees/delete">
                       <input name="employee_id" value={employee.id} hidden />

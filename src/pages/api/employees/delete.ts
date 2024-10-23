@@ -1,6 +1,5 @@
 import { db } from "@lib/database";
-import { employee } from "@lib/database/schema/employee";
-import { schedule } from "@lib/database/schema/schedule";
+import { employee, schedule } from "@lib/database/schema";
 
 import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
@@ -8,10 +7,10 @@ import { eq } from "drizzle-orm";
 export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
-  const employee_id = form_data.get("employee_id") as unknown as number;
+  const employeeId = form_data.get("employee_id") as unknown as number;
 
-  await db.delete(schedule).where(eq(schedule.employee_id, employee_id));
-  await db.delete(employee).where(eq(employee.id, employee_id));
+  await db.delete(schedule).where(eq(schedule.employeeId, employeeId));
+  await db.delete(employee).where(eq(employee.id, employeeId));
 
   return redirect(request.headers.get("referer") || "/");
 };

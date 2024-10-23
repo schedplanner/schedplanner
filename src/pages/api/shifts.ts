@@ -1,5 +1,5 @@
 import { db } from "@lib/database";
-import { shift } from "@lib/database/schema/shift";
+import { shift } from "@lib/database/schema";
 
 import type { APIRoute } from "astro";
 
@@ -12,12 +12,10 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
-  const insert_data = {
+  await db.insert(shift).values({
     start: form_data.get("start") as string,
     end: form_data.get("end") as string,
-  };
-
-  await db.insert(shift).values(insert_data);
+  });
 
   return redirect(request.headers.get("referer") || "/");
 };

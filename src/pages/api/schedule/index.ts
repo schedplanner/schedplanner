@@ -1,5 +1,5 @@
 import { db } from "@lib/database";
-import { schedule } from "@lib/database/schema/schedule";
+import { schedule } from "@lib/database/schema";
 
 import type { APIRoute } from "astro";
 import { and, eq } from "drizzle-orm";
@@ -13,30 +13,28 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
-  const shift_id = form_data.get("shift_id") as unknown as number;
-  const employee_id = form_data.get("employee_id") as unknown as number;
+  const shiftId = form_data.get("shift_id") as unknown as number;
+  const employeeId = form_data.get("employee_id") as unknown as number;
   const year = form_data.get("year") as unknown as number;
   const month = form_data.get("month") as unknown as number;
   const day = form_data.get("day") as unknown as number;
 
-  if (isNaN(shift_id)) {
+  if (isNaN(shiftId)) {
     await db
       .delete(schedule)
-      .where(and(eq(schedule.employee_id, employee_id), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
+      .where(and(eq(schedule.employeeId, employeeId), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
   } else {
-    const insert_data = {
-      shift_id: shift_id,
-      employee_id: employee_id,
+    await db
+      .delete(schedule)
+      .where(and(eq(schedule.employeeId, employeeId), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
+
+    await db.insert(schedule).values({
+      shiftId: shiftId,
+      employeeId: employeeId,
       year: year,
       month: month,
       day: day,
-    };
-
-    await db
-      .delete(schedule)
-      .where(and(eq(schedule.employee_id, employee_id), eq(schedule.year, year), eq(schedule.month, month), eq(schedule.day, day)));
-
-    await db.insert(schedule).values(insert_data);
+    });
   }
 
   return redirect("/");

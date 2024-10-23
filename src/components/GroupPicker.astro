@@ -1,0 +1,33 @@
+---
+import Cookies from "@lib/cookies";
+import { db } from "@lib/database";
+import { group } from "@lib/database/schema";
+
+import * as m from "@paraglide/messages";
+
+let current_group = (Astro.cookies.get(Cookies.currentGroup) || {})?.value;
+
+const groups = await db.select().from(group).orderBy(group.name);
+---
+
+<>
+  {
+    groups.length === 0 ? (
+      <span class="font-bold">{m.no_groups()}</span>
+    ) : (
+      <form method="POST" action="/api/groups/current" id="group-picker" class="flex flex-col gap-2 max-w-32 sm:max-w-none">
+        <select name="chosen_location" onchange="this.form.submit()" required value={current_group} class="bg-inherit">
+          {groups.map((group) => {
+            const is_current_group = group.name === current_group;
+
+            return (
+              <option value={group.name} selected={is_current_group}>
+                {group.name}
+              </option>
+            );
+          })}
+        </select>
+      </form>
+    )
+  }
+</>
