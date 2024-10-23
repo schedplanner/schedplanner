@@ -16,7 +16,7 @@ const groups = await db.select().from(group).orderBy(group.name);
       <span class="font-bold">{m.no_groups()}</span>
     ) : (
       <form method="POST" action="/api/groups/current" id="group-picker" class="flex flex-col gap-2 max-w-32 sm:max-w-none">
-        <select name="chosen_location" onchange="this.form.submit()" required value={current_group} class="bg-inherit">
+        <select name="chosen_group" onchange="this.form.submit()" required value={current_group} class="bg-inherit">
           {groups.map((group) => {
             const is_current_group = group.name === current_group;
 
