@@ -2,7 +2,6 @@
 import AddSchedule from "@components/modals/AddSchedule.astro";
 import TableHeaders from "@components/schedule/TableHeaders.astro";
 
-import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
 import { employee, group, schedule, shift } from "@lib/database/schema";
 import { DefaultDict, fmtShift } from "@lib/utils";
@@ -22,11 +21,11 @@ if ((await db.select().from(group)).length === 0) {
 let currentGroup = "";
 let currentGroupId = -1;
 
-if (Astro.cookies.has(Cookies.currentGroup)) {
-  currentGroup = Astro.cookies.get(Cookies.currentGroup)?.value || "";
+if (Astro.cookies.has("current_group")) {
+  currentGroup = Astro.cookies.get("current_group")?.value || "";
   if (currentGroup !== "" && (await db.select().from(group).where(eq(group.name, currentGroup))).length == 0) {
     console.warn(`Location '${currentGroup}' not found in the database! Clearing the cookie.`);
-    Astro.cookies.delete(Cookies.currentGroup);
+    Astro.cookies.delete("current_group");
     currentGroup = "";
   }
 }
@@ -34,7 +33,7 @@ if (Astro.cookies.has(Cookies.currentGroup)) {
 if (currentGroup === "") {
   const default_group = (await db.select({ name: group.name }).from(group).where(eq(group.defaultGroup, true)))[0]["name"];
   currentGroup = default_group;
-  Astro.cookies.set(Cookies.currentGroup, currentGroup);
+  Astro.cookies.set("current_group", currentGroup);
 }
 
 if (currentGroup === "") {

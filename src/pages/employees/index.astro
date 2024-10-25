@@ -1,7 +1,6 @@
 ---
 import Subpage from "@layouts/Subpage.astro";
 
-import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
 import { employee, group } from "@lib/database/schema";
 
@@ -21,7 +20,7 @@ if ((await db.select().from(group)).length == 0) {
   return Astro.redirect("/groups");
 }
 
-let current_group = (Astro.cookies.get(Cookies.currentGroup) || {})?.value || "";
+let current_group = (Astro.cookies.get("current_group") || {})?.value || "";
 
 if (current_group === "") {
   Astro.redirect("/");
