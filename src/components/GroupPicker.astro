@@ -1,11 +1,10 @@
 ---
-import Cookies from "@lib/cookies";
 import { db } from "@lib/database";
 import { group } from "@lib/database/schema";
 
 import * as m from "@paraglide/messages";
 
-let current_group = (Astro.cookies.get(Cookies.currentGroup) || {})?.value;
+let current_group = (Astro.cookies.get("current_group") || {})?.value;
 
 const groups = await db.select().from(group).orderBy(group.name);
 ---
