@@ -8,8 +8,8 @@ const { show_total_hours = false } = Astro.props;
 const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "short" });
 
 const now = new Date();
-const year = (Astro.url.searchParams.get("year") as unknown as number) || now.getFullYear();
-const month = (Astro.url.searchParams.get("month") as unknown as number) || now.getMonth() + 1;
+const year = Astro.cookies.get("year")?.number() || now.getFullYear();
+const month = Astro.cookies.get("month")?.number() || now.getMonth() + 1;
 
 const days_count = new Date(year, month, 0).getDate();
 ---

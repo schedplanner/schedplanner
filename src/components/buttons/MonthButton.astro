@@ -4,16 +4,33 @@ import { Icon } from "astro-icon/components";
 interface Props {
   icon: string;
   text: string;
-  href: string;
+  year: number;
+  month: number;
   class?: string;
 }
 
 const props = Astro.props;
+
+const id = "month_button_" + Math.random().toString(16).slice(2);
 ---
 
-<button class={`bg-red-500 text-white text-sm p-2 sm:px-2 sm:py-1 rounded-full sm:rounded-xl hover:bg-opacity-75 transition-colors ${props.class}`}>
-  <a href={props.href} class="flex flex-row items-center gap-2">
-    <Icon name={props.icon} />
-    <span class="hidden sm:block">{props.text}</span>
-  </a>
+<button
+  id={id}
+  class:list={[
+    "bg-red-500 text-white text-sm p-2 sm:px-2 sm:py-1 rounded-full sm:rounded-xl hover:bg-opacity-75 transition-colors flex flex-row items-center gap-2",
+    props.class,
+  ]}
+>
+  <Icon name={props.icon} />
+  <span class="hidden sm:block">{props.text}</span>
 </button>
+<script is:inline define:vars={{ id: id, year: props.year, month: props.month }}>
+  const _button = document.querySelector(`button#${id}`);
+  console.log(_button);
+  _button.addEventListener("click", (e) => {
+    console.log(year, month);
+    document.cookie = `year=${year}; expires=Session, path=/`;
+    document.cookie = `month=${month}; expires=Session, path=/`;
+    location.reload();
+  });
+</script>

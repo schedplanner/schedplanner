@@ -46,8 +46,8 @@ currentGroupId = (await db.select({ id: group.id }).from(group).where(eq(group.n
 const employees = await db.select().from(employee).where(eq(employee.groupId, currentGroupId)).orderBy(employee.lastName, employee.firstName);
 
 const now = new Date();
-const year = (Astro.url.searchParams.get("year") as unknown as number) || now.getFullYear();
-const month = (Astro.url.searchParams.get("month") as unknown as number) || now.getMonth() + 1;
+const year = Astro.cookies.get("year")?.number() || now.getFullYear();
+const month = Astro.cookies.get("month")?.number() || now.getMonth() + 1;
 
 const days_count = new Date(year, month, 0).getDate();
 
