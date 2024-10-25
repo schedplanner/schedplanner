@@ -9,7 +9,7 @@ import { DefaultDict, fmtShift } from "@lib/utils";
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
 
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
@@ -43,53 +43,107 @@ if (currentGroup === "") {
 
 currentGroupId = (await db.select({ id: group.id }).from(group).where(eq(group.name, currentGroup)))[0]["id"];
 
-const employees = await db.select().from(employee).where(eq(employee.groupId, currentGroupId)).orderBy(employee.lastName, employee.firstName);
-
 const now = new Date();
 const year = (Astro.cookies.get("year")?.number() as unknown as number) || now.getFullYear();
 const month = (Astro.cookies.get("month")?.number() as unknown as number) || now.getMonth() + 1;
 
+const employees = await db.select().from(employee).where(eq(employee.groupId, currentGroupId)).orderBy(employee.lastName, employee.firstName);
+
+const employees_ids = employees.flatMap((e) => {
+  return e.id;
+});
+
+const employees_schedule = await db
+  .select({
+    employeeId: schedule.employeeId,
+    shiftId: shift.id,
+    year: schedule.year,
+    month: schedule.month,
+    day: schedule.day,
+    start: shift.start,
+    end: shift.end,
+    color: shift.color,
+  })
+  .from(schedule)
+  .where(and(eq(schedule.year, year), eq(schedule.month, month), inArray(schedule.employeeId, employees_ids)))
+  .leftJoin(shift, eq(schedule.shiftId, shift.id))
+  .leftJoin(employee, eq(schedule.employeeId, employee.id))
+  .orderBy(schedule.day);
+
+// console.log(employees_schedule);
+
+const shift_counts = await db
+  .select({ count: count(shift.id), day: schedule.day })
+  .from(schedule)
+  .where(and(eq(schedule.year, year), eq(schedule.month, month), inArray(schedule.employeeId, employees_ids)))
+  .leftJoin(shift, eq(schedule.shiftId, shift.id))
+  .groupBy(shift.id, schedule.day)
+  .orderBy(schedule.day);
+
+// console.log(shift_counts);
+
 const days_count = new Date(year, month, 0).getDate();
 
 const full_schedule = {};
-const total_hours = new DefaultDict(Number);
-const shift_counts = new DefaultDict(() => new DefaultDict(Number));
+const total_hours = {};
 
-for (let e in employees) {
-  full_schedule[employees[e].id] = {};
+for (const s of employees_schedule) {
+  if (!(s.employeeId in full_schedule)) {
+    full_schedule[s.employeeId] = {};
+  }
 
-  const employee_schedule = await db
-    .select()
-    .from(schedule)
-    .where(and(eq(schedule.employeeId, employees[e].id), eq(schedule.year, year), eq(schedule.month, month)))
-    .leftJoin(shift, eq(schedule.shiftId, shift.id))
-    .orderBy(schedule.day);
+  if (!s.start || !s.end || !s.color) {
+    console.log(`No shift start found for day ${s.day}`);
+    continue;
+  }
 
-  if (employee_schedule.length === 0) continue;
+  const _day = new Date(year, month - 1, s.day);
 
-  employee_schedule
-    .filter((s) => {
-      return s.schedule !== null && s.shift !== null;
-    })
-    .map((s) => {
-      full_schedule[employees[e].id][s.schedule.day] = {};
-      full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift!.start);
-      full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift!.end);
-      full_schedule[employees[e].id][s.schedule.day]["color"] = s.shift!.color;
-
-      const shift_hours =
-        Math.abs(
-          Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.end}`) -
-            Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.start}`)
-        ) /
-        (60 * 60 * 1000);
-
-      total_hours[employees[e].id] += shift_hours;
-
-      shift_counts[s.shift!.id][s.schedule.day] += 1;
-      shift_counts[s.shift!.id]["total"] += 1;
-    });
+  full_schedule[s.employeeId][s.day] = {};
+  full_schedule[s.employeeId][s.day]["start"] = fmtShift(s.start);
+  full_schedule[s.employeeId][s.day]["end"] = fmtShift(s.end);
+  full_schedule[s.employeeId][s.day]["color"] = fmtShift(s.color);
+  full_schedule[s.employeeId][s.day]["isToday"] = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+  full_schedule[s.employeeId][s.day]["isSunday"] = _day.getDay() == 0;
 }
+
+// console.log(full_schedule);
+
+// for (let e in employees) {
+//   full_schedule[employees[e].id] = {};
+
+//   const employee_schedule = await db
+//     .select()
+//     .from(schedule)
+//     .where(and(eq(schedule.employeeId, employees[e].id), eq(schedule.year, year), eq(schedule.month, month)))
+//     .leftJoin(shift, eq(schedule.shiftId, shift.id))
+//     .orderBy(schedule.day);
+
+//   if (employee_schedule.length === 0) continue;
+
+//   employee_schedule
+//     .filter((s) => {
+//       return s.schedule !== null && s.shift !== null;
+//     })
+//     .map((s) => {
+//       full_schedule[employees[e].id][s.schedule.day] = {};
+//       full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift!.start);
+//       full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift!.end);
+//       full_schedule[employees[e].id][s.schedule.day]["color"] = s.shift!.color;
+
+//       const shift_hours =
+//         Math.abs(
+//           Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.end}`) -
+//             Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.start}`)
+//         ) /
+//         (60 * 60 * 1000);
+
+//       total_hours[employees[e].id] += shift_hours;
+
+//       shift_counts[s.shift!.id][s.schedule.day] += 1;
+//       shift_counts[s.shift!.id]["total"] += 1;
+//     });
+// }
 
 const shifts = await db.select().from(shift);
 ---
@@ -98,6 +152,65 @@ const shifts = await db.select().from(shift);
   <table class="table-auto border-collapse text-sm">
     <TableHeaders show_total_hours={true} />
     {
+      employees.map((employee) => {
+        return (
+          <tr>
+            <td class="px-4  whitespace-nowrap h-fit border-[1px]">
+              {employee.firstName} {employee.lastName}
+            </td>
+            {Array.from(Array(days_count), (_, i) => {
+              i = i + 1;
+
+              const _id = "id" + Math.random().toString(16).slice(2);
+
+              if (!(i in full_schedule[employee.id])) {
+                // console.log(`Day ${i} not found`);
+                return (
+                  <td class="hover:bg-opacity-50 transition-colors border-[1px]">
+                    <button
+                      class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
+                      onclick={`window.${_id}.showModal()`}
+                    />
+                    <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
+                  </td>
+                );
+              }
+
+              const color = full_schedule[employee.id][i]["color"];
+
+              console.log(employee.id, i);
+
+              return (
+                <td
+                  style={{ backgroundColor: color }}
+                  class:list={[
+                    "hover:bg-opacity-50 transition-colors border-[1px]",
+                    !color
+                      ? full_schedule[employee.id][i]["isSunday"]
+                        ? "bg-red-500 text-gray-100"
+                        : full_schedule[employee.id][i]["isToday"]
+                          ? "bg-gray-300 bg-opacity-100"
+                          : "bg-slate-200 bg-opacity-0"
+                      : null,
+                  ]}
+                >
+                  <button
+                    class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
+                    onclick={`window.${_id}.showModal()`}
+                  >
+                    <span>{full_schedule[employee.id][i]["start"]}</span>
+                    <span>{full_schedule[employee.id][i]["end"]}</span>
+                  </button>
+                  <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
+                </td>
+              );
+            })}
+            {/* <td class="font-bold border-[1px] text-xs text-center">{_total_hours}</td> */}
+          </tr>
+        );
+      })
+    }
+    <!-- {
       employees.map((employee) => {
         const _hours = Math.floor(total_hours[employee.id]);
         let _total_hours = `${_hours}h`;
@@ -147,9 +260,9 @@ const shifts = await db.select().from(shift);
           </tr>
         );
       })
-    }
+    } -->
     <TableHeaders />
-    {
+    <!-- {
       shifts
         .filter((s) => {
           let found = false;
@@ -186,6 +299,6 @@ const shifts = await db.select().from(shift);
             </tr>
           );
         })
-    }
+    } -->
   </table>
 </div>
