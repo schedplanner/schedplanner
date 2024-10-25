@@ -1,0 +1,66 @@
+---
+interface Props {
+  show_total_hours?: boolean;
+}
+
+const { show_total_hours = false } = Astro.props;
+
+const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "short" });
+
+const now = new Date();
+const year = (Astro.url.searchParams.get("year") as unknown as number) || now.getFullYear();
+const month = (Astro.url.searchParams.get("month") as unknown as number) || now.getMonth() + 1;
+
+const days_count = new Date(year, month, 0).getDate();
+---
+
+<>
+  <tr>
+    <td class="font-bold text-left px-4" rowspan="2">Counts on shifts</td>
+    {
+      Array.from(Array(days_count), (_, i) => {
+        i = i + 1;
+        const _day = new Date(year, month - 1, i);
+        const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+        const is_sunday = _day.getDay() == 0;
+        return (
+          <td
+            class:list={[
+              "text-center",
+              is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "bg-gray-50 text-gray-800 border-[1px] border-b-0",
+            ]}
+          >
+            {i}
+          </td>
+        );
+      })
+    }
+    {
+      show_total_hours ? (
+        <td class="px-2 border-[1px]" rowspan="2">
+          Total hours
+        </td>
+      ) : null
+    }
+  </tr>
+  <tr>
+    {
+      Array.from(Array(days_count), (_, i) => {
+        i = i + 1;
+        const _day = new Date(year, month - 1, i);
+        const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+        const is_sunday = _day.getDay() == 0;
+        return (
+          <td
+            class:list={[
+              "font-normal text-center",
+              is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500 border-[1px] border-t-0",
+            ]}
+          >
+            {dayFormat.format(_day)}
+          </td>
+        );
+      })
+    }
+  </tr>
+</>

@@ -1,0 +1,192 @@
+---
+import AddSchedule from "@components/modals/AddSchedule.astro";
+import TableHeaders from "@components/schedule/TableHeaders.astro";
+
+import Cookies from "@lib/cookies";
+import { db } from "@lib/database";
+import { employee, group, schedule, shift } from "@lib/database/schema";
+import { DefaultDict, fmtShift } from "@lib/utils";
+
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
+
+import { and, eq } from "drizzle-orm";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
+
+if ((await db.select().from(group)).length === 0) {
+  console.log("No groups found in the database! Redirecting to /groups so the user can add one.");
+  return Astro.redirect("/groups");
+}
+
+let currentGroup = "";
+let currentGroupId = -1;
+
+if (Astro.cookies.has(Cookies.currentGroup)) {
+  currentGroup = Astro.cookies.get(Cookies.currentGroup)?.value || "";
+  if (currentGroup !== "" && (await db.select().from(group).where(eq(group.name, currentGroup))).length == 0) {
+    console.warn(`Location '${currentGroup}' not found in the database! Clearing the cookie.`);
+    Astro.cookies.delete(Cookies.currentGroup);
+    currentGroup = "";
+  }
+}
+
+if (currentGroup === "") {
+  const default_group = (await db.select({ name: group.name }).from(group).where(eq(group.defaultGroup, true)))[0]["name"];
+  currentGroup = default_group;
+  Astro.cookies.set(Cookies.currentGroup, currentGroup);
+}
+
+if (currentGroup === "") {
+  console.log("Current group is for some reason not set, redirecting to /groups");
+  return Astro.redirect("/groups");
+}
+
+currentGroupId = (await db.select({ id: group.id }).from(group).where(eq(group.name, currentGroup)))[0]["id"];
+
+const employees = await db.select().from(employee).where(eq(employee.groupId, currentGroupId)).orderBy(employee.lastName, employee.firstName);
+
+const now = new Date();
+const year = (Astro.url.searchParams.get("year") as unknown as number) || now.getFullYear();
+const month = (Astro.url.searchParams.get("month") as unknown as number) || now.getMonth() + 1;
+
+const days_count = new Date(year, month, 0).getDate();
+
+const full_schedule = {};
+const total_hours = new DefaultDict(Number);
+const shift_counts = new DefaultDict(() => new DefaultDict(Number));
+
+for (let e in employees) {
+  full_schedule[employees[e].id] = {};
+
+  const employee_schedule = await db
+    .select()
+    .from(schedule)
+    .where(and(eq(schedule.employeeId, employees[e].id), eq(schedule.year, year), eq(schedule.month, month)))
+    .leftJoin(shift, eq(schedule.shiftId, shift.id))
+    .orderBy(schedule.day);
+
+  if (employee_schedule.length === 0) continue;
+
+  employee_schedule
+    .filter((s) => {
+      return s.schedule !== null && s.shift !== null;
+    })
+    .map((s) => {
+      full_schedule[employees[e].id][s.schedule.day] = {};
+      full_schedule[employees[e].id][s.schedule.day]["start"] = fmtShift(s.shift!.start);
+      full_schedule[employees[e].id][s.schedule.day]["end"] = fmtShift(s.shift!.end);
+      full_schedule[employees[e].id][s.schedule.day]["color"] = s.shift!.color;
+
+      const shift_hours =
+        Math.abs(
+          Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.end}`) -
+            Date.parse(`${s.schedule.year}-${s.schedule.month}-${s.schedule.day} ${s.shift!.start}`)
+        ) /
+        (60 * 60 * 1000);
+
+      total_hours[employees[e].id] += shift_hours;
+
+      shift_counts[s.shift!.id][s.schedule.day] += 1;
+      shift_counts[s.shift!.id]["total"] += 1;
+    });
+}
+
+const shifts = await db.select().from(shift);
+---
+
+<div class="overflow-auto h-[calc(100vh-10.1rem)]">
+  <table class="table-auto border-collapse text-sm">
+    <TableHeaders show_total_hours={true} />
+    {
+      employees.map((employee) => {
+        const _hours = Math.floor(total_hours[employee.id]);
+        let _total_hours = `${_hours}h`;
+        const _minutes = total_hours[employee.id] - _hours;
+
+        if (_minutes != 0) {
+          _total_hours = `${_hours}h ${Math.round(_minutes * 60)}min`;
+        }
+
+        return (
+          <tr>
+            <td class="px-4  whitespace-nowrap h-fit border-[1px]">
+              {employee.firstName} {employee.lastName}
+            </td>
+            {Array.from(Array(days_count), (_, i) => {
+              i = i + 1;
+              const _day = new Date(year, month - 1, i);
+              const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+              const is_sunday = _day.getDay() == 0;
+              const color = full_schedule[employee.id][i] ? full_schedule[employee.id][i]["color"] : "";
+
+              const _id = "id" + Math.random().toString(16).slice(2);
+              return (
+                <td
+                  style={{ backgroundColor: color }}
+                  class:list={[
+                    "hover:bg-opacity-50 transition-colors border-[1px]",
+                    !color ? (is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 bg-opacity-100" : "bg-slate-200 bg-opacity-0") : null,
+                  ]}
+                >
+                  <button
+                    class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
+                    onclick={`window.${_id}.showModal()`}
+                  >
+                    {full_schedule[employee.id][i] ? (
+                      <>
+                        <span>{full_schedule[employee.id][i]["start"]}</span>
+                        <span>{full_schedule[employee.id][i]["end"]}</span>
+                      </>
+                    ) : null}
+                  </button>
+                  <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
+                </td>
+              );
+            })}
+            <td class="font-bold border-[1px] text-xs text-center">{_total_hours}</td>
+          </tr>
+        );
+      })
+    }
+    <TableHeaders />
+    {
+      shifts
+        .filter((s) => {
+          let found = false;
+          Array.from(Array(days_count), (_, i) => {
+            if (shift_counts[s.id][i + 1] !== 0) {
+              found = true;
+            }
+          });
+
+          return found;
+        })
+        .map((s) => {
+          return (
+            <tr>
+              <td class="px-4 h-fit min-w-64 border-[1px]">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
+              {Array.from(Array(days_count), (_, i) => {
+                i = i + 1;
+                const _day = new Date(year, month - 1, i);
+                const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+                const is_sunday = _day.getDay() == 0;
+                const count = shift_counts[s.id][i];
+                return (
+                  <td
+                    class:list={[
+                      "h-fit text-center border-[1px]",
+                      count != 0 ? "font-bolder" : "font-normal",
+                      is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "text-gray-800",
+                    ]}
+                  >
+                    {count}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })
+    }
+  </table>
+</div>
