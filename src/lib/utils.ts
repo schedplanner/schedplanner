@@ -4,18 +4,6 @@ export const fmtShift = (date_string: string): string => {
   return `${hours}:${minutes}`;
 };
 
-// export class DefaultDict {
-//   constructor(defaultInit) {
-//     return new Proxy(
-//       {},
-//       {
-//         get: (target, name) =>
-//           name in target ? target[name] : (target[name] = typeof defaultInit === "function" ? new defaultInit().valueOf() : defaultInit),
-//       }
-//     );
-//   }
-// }
-
 export class DefaultDict {
   constructor(defaultValueFn) {
     const handler = {
