@@ -4,7 +4,6 @@ import { Icon } from "astro-icon/components";
 interface Props {
   icon: string;
   text: string;
-  year: number;
   month: number;
   class?: string;
 }
@@ -12,6 +11,14 @@ interface Props {
 const props = Astro.props;
 
 const id = "month_button_" + Math.random().toString(16).slice(2);
+
+const now = new Date();
+
+let year = Astro.cookies.get("year")?.number() || now.getFullYear();
+let month = props.month;
+
+year = month == 0 ? year - 1 : month == 13 ? year + 1 : year;
+month = month == 0 ? 12 : month == 13 ? 1 : month;
 ---
 
 <button
@@ -24,7 +31,7 @@ const id = "month_button_" + Math.random().toString(16).slice(2);
   <Icon name={props.icon} />
   <span class="hidden sm:block">{props.text}</span>
 </button>
-<script is:inline define:vars={{ id: id, year: props.year, month: props.month }}>
+<script is:inline define:vars={{ id: id, year: year, month: month }}>
   const _button = document.querySelector(`button#${id}`);
   console.log(_button);
   _button.addEventListener("click", (e) => {
