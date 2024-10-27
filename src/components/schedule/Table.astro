@@ -185,42 +185,46 @@ const shifts = await db.select().from(shift);
     }
     <TableHeaders />
     {
-      shifts
-        .filter((s) => {
-          let found = false;
-          Array.from(Array(days_count), (_, i) => {
-            if (shift_counts[s.id][i + 1] !== 0) {
-              found = true;
-            }
-          });
+      shifts.map((s) => {
+        return (
+          <tr>
+            <td class="px-4 h-fit min-w-64 border-[1px]">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
+            {Array.from(Array(days_count), (_, i) => {
+              i = i + 1;
 
-          return found;
-        })
-        .map((s) => {
-          return (
-            <tr>
-              <td class="px-4 h-fit min-w-64 border-[1px]">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
-              {Array.from(Array(days_count), (_, i) => {
-                i = i + 1;
-                const _day = new Date(year, month - 1, i);
-                const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-                const is_sunday = _day.getDay() == 0;
-                const count = shift_counts[s.id][i];
+              const _day = new Date(year, month - 1, i);
+              const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+              const is_sunday = _day.getDay() == 0;
+
+              if (!(s.id in shift_counts) || !(i in shift_counts[s.id])) {
                 return (
                   <td
                     class:list={[
                       "h-fit text-center border-[1px]",
-                      count ? "font-bold" : "font-normal",
                       is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "text-gray-800",
                     ]}
                   >
-                    {count ? count : 0}
+                    0
                   </td>
                 );
-              })}
-            </tr>
-          );
-        })
+              }
+
+              const count = shift_counts[s.id][i];
+
+              return (
+                <td
+                  class:list={[
+                    "h-fit text-center border-[1px] font-bold",
+                    is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "text-gray-800",
+                  ]}
+                >
+                  {count}
+                </td>
+              );
+            })}
+          </tr>
+        );
+      })
     }
   </table>
 </div>
