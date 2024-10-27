@@ -176,7 +176,9 @@ const shifts = await db.select().from(shift);
                 </td>
               );
             })}
-            <td class="font-bold border-[1px] text-xs text-center">{total_hours[employee.id]}</td>
+            <td class:list={["border-[1px] text-xs text-center", total_hours[employee.id] ? "font-bold" : ""]}>
+              {total_hours[employee.id] ? total_hours[employee.id] : 0}
+            </td>
           </tr>
         );
       })
@@ -208,7 +210,7 @@ const shifts = await db.select().from(shift);
                   <td
                     class:list={[
                       "h-fit text-center border-[1px]",
-                      count != 0 ? "font-bolder" : "font-normal",
+                      count ? "font-bold" : "font-normal",
                       is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "text-gray-800",
                     ]}
                   >
