@@ -139,12 +139,16 @@ const shifts = await db.select().from(shift);
 
               if (!(employee.id in full_schedule) || !(i in full_schedule[employee.id])) {
                 return (
-                  <td class="hover:bg-opacity-50 transition-colors border-[1px]">
-                    <button
-                      class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
-                      onclick={`window.${_id}.showModal()`}
+                  <td class="hover:bg-opacity-50 transition-colors border-[1px] selectable" data-employee={employee.id} data-day={i}>
+                    <button class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference" />
+                    <AddSchedule
+                      id={_id}
+                      year={year}
+                      month={month}
+                      day={i as unknown as string}
+                      employee_id={employee.id as unknown as string}
+                      shifts={shifts}
                     />
-                    <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
                   </td>
                 );
               }
@@ -155,7 +159,7 @@ const shifts = await db.select().from(shift);
                 <td
                   style={{ backgroundColor: color }}
                   class:list={[
-                    "hover:bg-opacity-50 transition-colors border-[1px]",
+                    "hover:bg-opacity-50 transition-colors border-[1px] selectable",
                     color
                       ? null
                       : full_schedule[employee.id][i]["isSunday"]
@@ -164,15 +168,21 @@ const shifts = await db.select().from(shift);
                           ? "bg-gray-300 bg-opacity-100"
                           : "bg-slate-200 bg-opacity-0",
                   ]}
+                  data-employee={employee.id}
+                  data-day={i}
                 >
-                  <button
-                    class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
-                    onclick={`window.${_id}.showModal()`}
-                  >
+                  <button class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference">
                     <span>{full_schedule[employee.id][i]["start"]}</span>
                     <span>{full_schedule[employee.id][i]["end"]}</span>
                   </button>
-                  <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
+                  <AddSchedule
+                    id={_id}
+                    year={year}
+                    month={month}
+                    day={i as unknown as string}
+                    employee_id={employee.id as unknown as string}
+                    shifts={shifts}
+                  />
                 </td>
               );
             })}
@@ -227,4 +237,123 @@ const shifts = await db.select().from(shift);
       })
     }
   </table>
+  <AddSchedule id="schedule_multi" year={year} month={month} day="" employee_id="" shifts={shifts} />
 </div>
+<style>
+  .intersected {
+    background-color: theme("colors.gray.600/75") !important;
+  }
+</style>
+<script>
+  interface Selectable {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    elem?: HTMLElement;
+  }
+
+  const selectables: Selectable[] = [];
+  const selectableElems = [...(document.querySelectorAll(".selectable") as NodeListOf<HTMLElement>)];
+
+  for (const selectable of selectableElems) {
+    const { x, y, width, height } = selectable.getBoundingClientRect();
+    selectables.push({ x: x + window.scrollX, y: y + window.scrollY, width, height, elem: selectable });
+    selectable.dataset.info = JSON.stringify({ x, y, width, height });
+  }
+
+  function checkSelected(selectAreaElem: Element) {
+    const { x, y, height, width } = selectAreaElem.getBoundingClientRect();
+
+    for (const selectable of selectables) {
+      if (checkRectIntersection({ x: x + window.scrollX, y: y + window.scrollY, height, width }, selectable)) {
+        selectable.elem?.classList.add("intersected");
+      } else {
+        selectable.elem?.classList.remove("intersected");
+      }
+    }
+  }
+
+  const checkRectIntersection = (r1: Selectable, r2: Selectable): boolean => {
+    return !(r1.x + r1.width < r2.x || r2.x + r2.width < r1.x || r1.y + r1.height < r2.y || r2.y + r2.height < r1.y);
+  };
+
+  //   addEventListener("click", (event: PointerEvent) => {
+  //     event.preventDefault();
+
+  //     const target = event.target as HTMLElement;
+  //     if (target.nodeName !== "BUTTON") return;
+
+  //     const dialogElement = target.parentElement?.querySelector("dialog") as HTMLDialogElement;
+  //     dialogElement.showModal();
+  //   });
+
+  document.addEventListener("pointerdown", (event: PointerEvent) => {
+    event.preventDefault();
+
+    const x = event.pageX;
+    const y = event.pageY;
+
+    const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.width = "0";
+    div.style.height = "0";
+    div.style.left = x + "px";
+    div.style.top = y + "px";
+    div.classList.add("drag-select");
+    document.body.append(div);
+
+    const resize = (event: PointerEvent) => {
+      const diffX = event.pageX - x;
+      const diffY = event.pageY - y;
+      div.style.left = diffX < 0 ? x + diffX + "px" : x + "px";
+      div.style.top = diffY < 0 ? y + diffY + "px" : y + "px";
+      div.style.height = Math.abs(diffY) + "px";
+      div.style.width = Math.abs(diffX) + "px";
+      checkSelected(div);
+    };
+
+    selectables.forEach((item) => item.elem?.classList.remove("intersected"));
+
+    const addMultiScheduleElement = document.querySelector("dialog#schedule_multi") as HTMLDialogElement;
+
+    addEventListener("pointermove", (event: PointerEvent) => {
+      resize(event);
+
+      const intersectedElements = [...(document.querySelectorAll(".intersected") as NodeListOf<HTMLElement>)];
+
+      const employees: number[] = [];
+      const days: number[] = [];
+
+      if (intersectedElements.length) {
+        intersectedElements.map((elem) => {
+          const employee = elem.dataset.employee as unknown as number;
+          const day = elem.dataset.day as unknown as number;
+
+          console.log(employee in employees);
+
+          !(employee in employees) && employees.push(employee);
+          !(day in days) && days.push(day);
+        });
+      }
+
+      if (employees.length && days.length) {
+        console.log("employees", employees);
+        console.log("days", days);
+
+        const employeeIdElement = addMultiScheduleElement?.querySelector("input[name='employee_id']") as HTMLInputElement;
+        const dayElement = addMultiScheduleElement?.querySelector("input[name='day']") as HTMLInputElement;
+
+        employeeIdElement.value = employees.join(",");
+        dayElement.value = days.join(",");
+      }
+    });
+
+    addEventListener("pointerup", () => {
+      addMultiScheduleElement.showModal();
+
+      removeEventListener("pointermove", resize);
+      div.remove();
+    });
+  });
+</script>

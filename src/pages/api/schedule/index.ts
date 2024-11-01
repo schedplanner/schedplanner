@@ -13,6 +13,10 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
+  console.log(form_data);
+
+  return redirect("/");
+
   const shiftId = form_data.get("shift_id") as unknown as number;
   const employeeId = form_data.get("employee_id") as unknown as number;
   const year = form_data.get("year") as unknown as number;
