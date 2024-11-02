@@ -1,0 +1,18 @@
+---
+interface Props {
+  required?: boolean;
+  class?: string;
+  value?: string;
+}
+
+const props = Astro.props;
+---
+
+<input
+  name="color"
+  type="color"
+  class="h-4"
+  required={props.required}
+  value={props.value}
+  class:list={["block mt-auto mb-[1px] h-[2.5rem] w-full rounded-md cursor-pointer", props.class]}
+/>
