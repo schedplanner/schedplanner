@@ -53,9 +53,16 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
             {employees.map((employee) => {
               return (
                 <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
-                  <span class="font-bold">
-                    {employee.firstName} {employee.lastName}
-                  </span>
+                  <form method="POST" action="/api/employees/rename">
+                    <label for="first_name">{m.first_name()}:</label>
+                    <input type="text" name="first_name" value={employee.firstName} class="font-bold" />
+                    <label for="last_name">{m.last_name()}:</label>
+                    <input type="text" name="last_name" value={employee.lastName} class="font-bold" />
+
+                    <input name="employee_id" value={employee.id} hidden />
+                    <input name="group_id" value={employee.groupId} hidden />
+                    <input type="submit" hidden />
+                  </form>
                   <div>
                     <form method="POST" action="/api/employees/delete">
                       <input name="employee_id" value={employee.id} hidden />
