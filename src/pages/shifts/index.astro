@@ -35,10 +35,10 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
       ) : (
         <div class="flex flex-col gap-4">
           <h4 class="font-bold text-xl">{m.all_shifts()}:</h4>
-          <ul class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {shifts.map((shift) => {
               return (
-                <li style={{ backgroundColor: shift.color }} class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
+                <div style={{ backgroundColor: shift.color }} class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
                   <span class={shift.color ? "invert mix-blend-difference" : ""}>
                     {fmtShift(shift.start)} - {fmtShift(shift.end)}
                   </span>
@@ -49,10 +49,10 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                       <Remove />
                     </form>
                   </div>
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </div>
       )
     }

@@ -50,10 +50,10 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
       ) : (
         <div class="flex flex-col gap-4">
           <h4 class="font-bold text-xl">{m.all_employees()}:</h4>
-          <ul class="grid grid-cols-4 gap-4">
+          <div class="grid grid-cols-4 gap-4">
             {employees.map((employee) => {
               return (
-                <li class="flex flex-col justify-between gap-4 border-2 rounded-xl px-4 py-2">
+                <div class="flex flex-col justify-between gap-4 border-2 rounded-xl px-4 py-2">
                   <span class="font-bold">
                     {employee.firstName} {employee.lastName}
                   </span>
@@ -64,10 +64,10 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
                       <Remove />
                     </form>
                   </div>
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </div>
       )
     }
