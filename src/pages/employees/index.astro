@@ -49,11 +49,10 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
         <span class="font-bold text-xl text-center">{m.no_employees()}</span>
       ) : (
         <div class="flex flex-col gap-4">
-          <h4 class="font-bold text-xl">{m.all_employees()}:</h4>
-          <div class="grid grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {employees.map((employee) => {
               return (
-                <div class="flex flex-col justify-between gap-4 border-2 rounded-xl px-4 py-2">
+                <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
                   <span class="font-bold">
                     {employee.firstName} {employee.lastName}
                   </span>
