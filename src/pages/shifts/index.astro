@@ -41,7 +41,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                   <span class={shift.color ? "invert mix-blend-difference" : ""}>
                     {fmtShift(shift.start)} - {fmtShift(shift.end)}
                   </span>
-                  <div>
+                  <div class="flex flex-row justify-end">
                     <form method="POST" action="/api/shifts/delete">
                       <input name="shift_id" value={shift.id} hidden />
 

@@ -63,7 +63,7 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
                     <input name="group_id" value={employee.groupId} hidden />
                     <input type="submit" hidden />
                   </form>
-                  <div>
+                  <div class="flex flex-row justify-end">
                     <form method="POST" action="/api/employees/delete">
                       <input name="employee_id" value={employee.id} hidden />
 

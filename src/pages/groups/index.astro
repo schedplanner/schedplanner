@@ -48,7 +48,7 @@ const groups = await db.select().from(group).orderBy(group.name);
                         {group.defaultGroup ? <span>({m.default_group()})</span> : null}
                       </div>
                     </div>
-                    <div>
+                    <div class="flex flex-row justify-end">
                       <form method="POST" action="/api/groups/delete">
                         <input name="group_id" value={group.id} hidden />
 
