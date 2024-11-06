@@ -1,0 +1,22 @@
+---
+interface Props {
+  name: string;
+  label?: string;
+  required?: boolean;
+  class?: string;
+}
+
+const props = Astro.props;
+---
+
+<div class={props.class}>
+  <label for={props.name} class="text-gray-700">{props.label}</label>
+  <select
+    id={props.name}
+    name={props.name}
+    required={props.required}
+    class="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring"
+  >
+    <slot />
+  </select>
+</div>
