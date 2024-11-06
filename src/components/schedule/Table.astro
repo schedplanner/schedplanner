@@ -202,7 +202,10 @@ const shifts = await db.select().from(shift);
                 s.label
               ) : (
                 <>
-                  {fmtShift(s.start)} - {fmtShift(s.end)}
+                  <span>{s.shiftType}</span>
+                  <span>
+                    {fmtShift(s.start)} - {fmtShift(s.end)}
+                  </span>
                 </>
               )}
             </td>
