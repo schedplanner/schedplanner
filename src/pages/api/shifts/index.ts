@@ -13,6 +13,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
   await db.insert(shift).values({
+    label: form_data.get("label") as string,
     start: form_data.get("start") as string,
     end: form_data.get("end") as string,
     color: form_data.get("color") as string,

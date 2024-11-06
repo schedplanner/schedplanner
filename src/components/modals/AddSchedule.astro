@@ -18,7 +18,13 @@ const { id, year, month, day, employee_id, shifts } = Astro.props;
             shifts.map((shift) => {
               return (
                 <option value={shift.id}>
-                  {fmtShift(shift.start)} - {fmtShift(shift.end)}
+                  {shift.label ? (
+                    shift.label
+                  ) : (
+                    <>
+                      {fmtShift(shift.start)} - {fmtShift(shift.end)}
+                    </>
+                  )}
                 </option>
               );
             })

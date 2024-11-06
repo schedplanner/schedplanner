@@ -60,6 +60,7 @@ const employees_schedule = await db
     year: schedule.year,
     month: schedule.month,
     day: schedule.day,
+    label: shift.label,
     start: shift.start,
     end: shift.end,
     color: shift.color,
@@ -89,6 +90,7 @@ for (const s of employees_schedule) {
   const _day = new Date(year, month - 1, s.day);
 
   full_schedule[s.employeeId][s.day] = {};
+  full_schedule[s.employeeId][s.day]["label"] = s.label;
   full_schedule[s.employeeId][s.day]["start"] = fmtShift(s.start);
   full_schedule[s.employeeId][s.day]["end"] = fmtShift(s.end);
   full_schedule[s.employeeId][s.day]["color"] = s.color;
@@ -149,6 +151,7 @@ const shifts = await db.select().from(shift);
                 );
               }
 
+              const label = full_schedule[employee.id][i]["label"];
               const color = full_schedule[employee.id][i]["color"];
 
               return (
@@ -169,8 +172,14 @@ const shifts = await db.select().from(shift);
                     class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
                     onclick={`window.${_id}.showModal()`}
                   >
-                    <span>{full_schedule[employee.id][i]["start"]}</span>
-                    <span>{full_schedule[employee.id][i]["end"]}</span>
+                    {label ? (
+                      label
+                    ) : (
+                      <>
+                        <span>{full_schedule[employee.id][i]["start"]}</span>
+                        <span>{full_schedule[employee.id][i]["end"]}</span>
+                      </>
+                    )}
                   </button>
                   <AddSchedule id={_id} year={year} month={month} day={i} employee_id={employee.id} shifts={shifts} />
                 </td>
