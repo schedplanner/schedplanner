@@ -1,5 +1,5 @@
 import { db } from "@lib/database";
-import { shift } from "@lib/database/schema";
+import { shift, shiftTypesEnum } from "@lib/database/schema";
 
 import type { APIRoute } from "astro";
 
@@ -17,6 +17,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     start: form_data.get("start") as string,
     end: form_data.get("end") as string,
     color: form_data.get("color") as string,
+    shiftType: form_data.get("shift_type") as unknown as typeof shift.$inferSelect.shiftType,
   });
 
   return redirect(request.headers.get("referer") || "/");
