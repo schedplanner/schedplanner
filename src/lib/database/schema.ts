@@ -58,7 +58,7 @@ export const schedule = pgTable(
 
 export const shift = pgTable("shift", {
   id: serial("id").primaryKey().notNull(),
-  comment: varchar("comment"),
+  label: varchar("label"),
   start: time("start").notNull(),
   end: time("end").notNull(),
   color: varchar("color"),
