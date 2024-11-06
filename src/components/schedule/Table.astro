@@ -168,10 +168,7 @@ const shifts = await db.select().from(shift);
                           : "bg-slate-200 bg-opacity-0",
                   ]}
                 >
-                  <button
-                    class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
-                    onclick={`window.${_id}.showModal()`}
-                  >
+                  <button class="flex flex-col items-center justify-center w-10 h-10" onclick={`window.${_id}.showModal()`}>
                     {label ? (
                       label
                     ) : (

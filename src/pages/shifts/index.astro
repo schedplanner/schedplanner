@@ -49,8 +49,8 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
               return (
                 <div style={{ backgroundColor: shift.color }} class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
                   <div>
-                    <form method="POST" action="/api/shifts/update" class:list={[{ "invert mix-blend-difference": shift.color }]}>
-                      <input type="text" name="label" class="font-bold" value={shift.label} />
+                    <form method="POST" action="/api/shifts/update">
+                      <input type="text" name="label" class="font-bold" style={{ backgroundColor: shift.color }} value={shift.label} />
                       <HTMLSelect name="shift_type" onchange="this.form.submit()">
                         {shiftTypesEnum.enumValues.map((shiftType) => {
                           return (
@@ -63,7 +63,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                       <input name="shift_id" value={shift.id} hidden />
                       <input type="submit" hidden />
                     </form>
-                    <span class={shift.color ? "invert mix-blend-difference" : ""}>
+                    <span>
                       {fmtShift(shift.start)} - {fmtShift(shift.end)}
                     </span>
                   </div>
