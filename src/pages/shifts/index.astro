@@ -40,7 +40,11 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
             {shifts.map((shift) => {
               return (
                 <div style={{ backgroundColor: shift.color }} class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
-                  <span class:list={["font-bold", { "invert mix-blend-difference": shift.color }]}>{shift.label}</span>
+                  <form method="POST" action="/api/shifts/rename">
+                    <input type="text" name="label" class:list={["font-bold", { "invert mix-blend-difference": shift.color }]} value={shift.label} />
+                    <input name="shift_id" value={shift.id} hidden />
+                    <input type="submit" hidden />
+                  </form>
                   <span class={shift.color ? "invert mix-blend-difference" : ""}>
                     {fmtShift(shift.start)} - {fmtShift(shift.end)}
                   </span>
