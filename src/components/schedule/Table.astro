@@ -188,7 +188,15 @@ const shifts = await db.select().from(shift);
       shifts.map((s) => {
         return (
           <tr>
-            <td class="px-4 h-fit min-w-64 border-[1px]">{m.count_on_shift({ start: fmtShift(s.start), end: fmtShift(s.end) })}</td>
+            <td class="px-4 h-fit min-w-64 border-[1px]">
+              {s.label ? (
+                s.label
+              ) : (
+                <>
+                  {fmtShift(s.start)} - {fmtShift(s.end)}
+                </>
+              )}
+            </td>
             {Array.from(Array(days_count), (_, i) => {
               i = i + 1;
 
