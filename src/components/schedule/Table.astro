@@ -64,6 +64,7 @@ const employees_schedule = await db
     start: shift.start,
     end: shift.end,
     color: shift.color,
+    shiftType: shift.shiftType,
   })
   .from(schedule)
   .where(and(eq(schedule.year, year), eq(schedule.month, month), inArray(schedule.employeeId, employees_ids)))
@@ -100,10 +101,12 @@ for (const s of employees_schedule) {
   const shift_hours =
     Math.abs(Date.parse(`${s.year}-${s.month}-${s.day} ${s.end}`) - Date.parse(`${s.year}-${s.month}-${s.day} ${s.start}`)) / (60 * 60 * 1000);
 
-  if (!(s.employeeId in total_hours)) {
-    total_hours[s.employeeId] = 0;
+  if (!["VACATION", "LEAVE_ON_REQUEST"].includes(s.shiftType as string)) {
+    if (!(s.employeeId in total_hours)) {
+      total_hours[s.employeeId] = 0;
+    }
+    total_hours[s.employeeId] += shift_hours;
   }
-  total_hours[s.employeeId] += shift_hours;
 
   if (!(s.shiftId in shift_counts)) {
     shift_counts[s.shiftId] = {};
