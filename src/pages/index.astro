@@ -52,16 +52,19 @@ const month = Astro.cookies.get("month")?.number() || now.getMonth() + 1;
 <Layout title="SchedPlanner">
   <div class="p-4 mx-auto flex flex-row justify-between gap-4 items-center">
     <MonthButton icon="mdi:arrow-left" text="Previous" month={Number(month) - 1} />
-    <form method="POST" action="/api/month" id="date-picker" class="max-w-64">
-      <HTMLInput
-        name="month"
-        type="month"
-        onchange="this.form.submit()"
-        value=`${year}-${String(month).padStart(2, "0")}`
-        class="flex flex-row items-center"
-      />
-    </form>
+    <HTMLInput name="month" type="month" value=`${year}-${String(month).padStart(2, "0")}` class="flex flex-row items-center" />
     <MonthButton icon="mdi:arrow-right" text="Next" class="flex-row-reverse" month={Number(month) + 1} />
   </div>
   <Table />
 </Layout>
+<script>
+  const month_input_element = document.querySelector("input[name='month']") as HTMLInputElement;
+
+  month_input_element.addEventListener("change", (e) => {
+    const target = e.target as HTMLInputElement;
+    const [year, month] = target.value.split("-");
+    document.cookie = `year=${year}; expires=Session, path=/`;
+    document.cookie = `month=${month}; expires=Session, path=/`;
+    location.reload();
+  });
+</script>
