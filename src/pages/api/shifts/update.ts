@@ -12,6 +12,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     .update(shift)
     .set({
       label: form_data.get("label") as string,
+      start: form_data.get("start") as string,
+      end: form_data.get("end") as string,
+      color: form_data.get("color") as string,
       shiftType: form_data.get("shift_type") as unknown as typeof shift.$inferSelect.shiftType,
     })
     .where(eq(shift.id, form_data.get("shift_id") as unknown as number));

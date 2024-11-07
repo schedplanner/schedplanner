@@ -3,7 +3,6 @@ import Subpage from "@layouts/Subpage.astro";
 
 import { db } from "@lib/database";
 import { shift, shiftTypesEnum } from "@lib/database/schema";
-import { fmtShift } from "@lib/utils";
 
 import Remove from "@components/buttons/Remove.astro";
 import ColorPicker from "@components/form/ColorPicker.astro";
@@ -47,7 +46,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {shifts.map((shift) => {
               return (
-                <div style={{ backgroundColor: shift.color }} class="flex flex-col justify-between gap-4 border-2 rounded-xl p-4">
+                <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-4">
                   <div class="flex flex-col gap-2">
                     <form method="POST" action="/api/shifts/update" class="flex flex-col gap-2">
                       <HTMLInput name="label" label={m.label()} type="text" value={shift.label!} />
@@ -60,15 +59,12 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                           );
                         })}
                       </HTMLSelect>
+                      <HTMLInput name="start" label={m.shift_start()} type="time" value={shift.start} />
+                      <HTMLInput name="end" label={m.shift_end()} type="time" value={shift.end} />
+                      <ColorPicker label={m.color()} value={shift.color!} onchange="this.form.submit()" />
                       <input name="shift_id" value={shift.id} hidden />
                       <input type="submit" hidden />
                     </form>
-                    <div class="flex flex-col">
-                      <span class="text-gray-700">{m.time_range()}</span>
-                      <span>
-                        {fmtShift(shift.start)} - {fmtShift(shift.end)}
-                      </span>
-                    </div>
                   </div>
                   <div class="flex flex-row justify-end">
                     <form method="POST" action="/api/shifts/delete">
