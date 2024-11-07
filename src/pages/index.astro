@@ -8,6 +8,7 @@ import Table from "@components/schedule/Table.astro";
 import { db } from "@lib/database";
 import { group } from "@lib/database/schema";
 
+import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
 
 import { eq } from "drizzle-orm";
@@ -51,9 +52,9 @@ const month = Astro.cookies.get("month")?.number() || now.getMonth() + 1;
 
 <Layout title="SchedPlanner">
   <div class="p-4 mx-auto flex flex-row justify-between gap-4 items-center">
-    <MonthButton icon="mdi:arrow-left" text="Previous" month={Number(month) - 1} />
+    <MonthButton icon="mdi:arrow-left" text={m.previous()} month={Number(month) - 1} />
     <HTMLInput name="month" type="month" value=`${year}-${String(month).padStart(2, "0")}` class="flex flex-row items-center" />
-    <MonthButton icon="mdi:arrow-right" text="Next" class="flex-row-reverse" month={Number(month) + 1} />
+    <MonthButton icon="mdi:arrow-right" text={m.next()} class="flex-row-reverse" month={Number(month) + 1} />
   </div>
   <Table />
 </Layout>

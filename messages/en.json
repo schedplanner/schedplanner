@@ -30,5 +30,10 @@
   "shift_end": "Shift end",
   "city": "City",
   "count_on_shift": "Count on shift {start} - {end}",
-  "name": "Name"
+  "name": "Name",
+  "previous": "Previous",
+  "next": "Next",
+  "label": "Label",
+  "shift_type": "Shift type",
+  "time_range": "Time range"
 }
