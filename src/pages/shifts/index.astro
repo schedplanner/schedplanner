@@ -24,7 +24,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
     <form method="POST" action="/api/shifts" class="flex flex-col gap-8">
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-3 items-center">
         <HTMLInput name="label" label={m.label()} type="text" />
-        <ColorPicker label={m.color()} />
+        <ColorPicker label={m.color()} value="#ffffff" />
         <HTMLSelect name="shift_type" label={m.shift_type()}>
           {
             shiftTypesEnum.enumValues.map((shiftType) => {
