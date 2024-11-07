@@ -24,7 +24,7 @@
   "add_shift": "Add shift",
   "schedule": "Schedule",
   "schedule_modifying_day_for_employee": "Modifying {day}th {month} for {employee}",
-  "default_group": "default",
+  "default_group": "Default group",
   "comment": "Comment",
   "shift_start": "Shift start",
   "shift_end": "Shift end",

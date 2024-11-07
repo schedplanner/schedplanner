@@ -28,7 +28,7 @@
   "zip_code": "Kod pocztowy",
   "street": "Ulica",
   "name": "Nazwa",
-  "default_group": "domyślna",
+  "default_group": "Grupa domyślna",
   "comment": "Komentarz",
   "shift_start": "Początek zmiany",
   "shift_end": "Koniec zmiany",

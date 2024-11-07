@@ -38,15 +38,16 @@ const groups = await db.select().from(group).orderBy(group.name);
               {groups.map((group) => {
                 return (
                   <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-2">
                       <div>
                         <form method="POST" action="/api/groups/rename">
-                          <input type="text" name="group_name" value={group.name} class="font-bold w-full" />
+                          <HTMLInput type="text" name="group_name" value={group.name} label={m.name()} />
+
                           <input name="group_id" value={group.id} hidden />
                           <input type="submit" hidden />
                         </form>
-                        {group.defaultGroup ? <span>({m.default_group()})</span> : null}
                       </div>
+                      {group.defaultGroup ? <span class="font-bold text-center">{m.default_group()}</span> : null}
                     </div>
                     <div class="flex flex-row justify-end">
                       <form method="POST" action="/api/groups/delete">
