@@ -50,7 +50,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                 <div style={{ backgroundColor: shift.color }} class="flex flex-col justify-between gap-4 border-2 rounded-xl p-4">
                   <div class="flex flex-col gap-2">
                     <form method="POST" action="/api/shifts/update" class="flex flex-col gap-2">
-                      <HTMLInput name="label" label={m.label()} type="text" />
+                      <HTMLInput name="label" label={m.label()} type="text" value={shift.label!} />
                       <HTMLSelect name="shift_type" label={m.shift_type()}>
                         {shiftTypesEnum.enumValues.map((shiftType) => {
                           return (
