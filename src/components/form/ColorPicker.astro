@@ -5,6 +5,7 @@ interface Props {
   required?: boolean;
   class?: string;
   value?: string;
+  onchange?: string;
 }
 
 const props = Astro.props;
@@ -19,6 +20,7 @@ const props = Astro.props;
     type="color"
     required={props.required}
     value={props.value}
+    onchange={props.onchange}
     class:list={["block mt-auto mb-[1px] h-[2.5rem] w-full rounded-md cursor-pointer", props.class]}
   />
 </div>
