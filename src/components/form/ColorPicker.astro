@@ -1,5 +1,7 @@
 ---
 interface Props {
+  name?: string;
+  label?: string;
   required?: boolean;
   class?: string;
   value?: string;
@@ -8,11 +10,15 @@ interface Props {
 const props = Astro.props;
 ---
 
-<input
-  name="color"
-  type="color"
-  class="h-4"
-  required={props.required}
-  value={props.value}
-  class:list={["block mt-auto mb-[1px] h-[2.5rem] w-full rounded-md cursor-pointer", props.class]}
-/>
+<div class:list={["h-full flex flex-col", { "justify-end items-end": !props.label }]}>
+  <label for={props.name ? props.name : "color"} class="text-gray-700">
+    {props.label}
+  </label>
+  <input
+    name={props.name ? props.name : "color"}
+    type="color"
+    required={props.required}
+    value={props.value}
+    class:list={["block mt-auto mb-[1px] h-[2.5rem] w-full rounded-md cursor-pointer", props.class]}
+  />
+</div>

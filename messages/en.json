@@ -35,5 +35,6 @@
   "next": "Next",
   "label": "Label",
   "shift_type": "Shift type",
-  "time_range": "Time range"
+  "time_range": "Time range",
+  "color": "Color"
 }
