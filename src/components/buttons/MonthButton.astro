@@ -33,9 +33,8 @@ month = month == 0 ? 12 : month == 13 ? 1 : month;
 </button>
 <script is:inline define:vars={{ id: id, year: year, month: month }}>
   const _button = document.querySelector(`button#${id}`);
-  console.log(_button);
+
   _button.addEventListener("click", (e) => {
-    console.log(year, month);
     document.cookie = `year=${year}; expires=Session, path=/`;
     document.cookie = `month=${month}; expires=Session, path=/`;
     location.reload();
