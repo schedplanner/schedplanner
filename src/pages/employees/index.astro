@@ -48,30 +48,48 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
       employees.length === 0 ? (
         <span class="font-bold text-xl text-center">{m.no_employees()}</span>
       ) : (
-        <div class="flex flex-col gap-4">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {employees.map((employee) => {
-              return (
-                <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
-                  <form method="POST" action="/api/employees/rename">
-                    <HTMLInput type="text" name="first_name" value={employee.firstName} label={m.first_name()} />
-                    <HTMLInput type="text" name="last_name" value={employee.lastName} label={m.last_name()} />
-
-                    <input name="employee_id" value={employee.id} hidden />
-                    <input name="group_id" value={employee.groupId} hidden />
-                    <input type="submit" hidden />
-                  </form>
-                  <div class="flex flex-row justify-end">
-                    <form method="POST" action="/api/employees/delete">
-                      <input name="employee_id" value={employee.id} hidden />
-
-                      <Remove />
-                    </form>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <div class="rounded-xl">
+          <table class="w-full text-sm text-left rtl:text-right">
+            <thead class="text-xs uppercase bg-gray-200">
+              <tr>
+                <th class="px-6 py-3">{m.first_name()}</th>
+                <th class="px-6 py-3">{m.last_name()}</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {employees.map((employee) => {
+                return (
+                  <tr class="even:bg-gray-100">
+                    <td class="px-6 py-4">
+                      <form method="POST" action="/api/employees/rename" class="flex flex-row justify-between items-center gap-4">
+                        <input type="text" name="first_name" value={employee.firstName} class="bg-transparent w-full" autocomplete="off" />
+                        <input name="employee_id" value={employee.id} hidden />
+                        <input name="group_id" value={employee.groupId} hidden />
+                        <input type="submit" hidden />
+                      </form>
+                    </td>
+                    <td class="px-6 py-4">
+                      <form method="POST" action="/api/employees/rename" class="flex flex-row justify-between items-center gap-4">
+                        <input type="text" name="last_name" value={employee.lastName} class="bg-transparent w-full" autocomplete="off" />
+                        <input name="employee_id" value={employee.id} hidden />
+                        <input name="group_id" value={employee.groupId} hidden />
+                        <input type="submit" hidden />
+                      </form>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex flex-row gap-2 justify-end">
+                        <form method="POST" action="/api/employees/delete">
+                          <input name="employee_id" value={employee.id} hidden class="hidden" />
+                          <input type="submit" value="Usuń" class="bg-red-500 text-white text-sm px-2 py-1 rounded-xl" />
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )
     }
