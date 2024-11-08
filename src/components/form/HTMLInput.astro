@@ -1,4 +1,6 @@
 ---
+import { getRandomId } from "@lib/utils";
+
 interface Props {
   name: string;
   type: astroHTML.JSX.HTMLInputTypeAttribute;
@@ -12,12 +14,14 @@ interface Props {
 }
 
 const props = Astro.props;
+
+const id = getRandomId("input");
 ---
 
 <div class={props.class}>
-  <label for={props.name} class="text-gray-700">{props.label}</label>
+  <label for={id} class="text-gray-700">{props.label}</label>
   <input
-    id={props.name}
+    id={id}
     name={props.name}
     placeholder={props.placeholder}
     type={props.type}

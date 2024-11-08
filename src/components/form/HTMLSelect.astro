@@ -1,4 +1,6 @@
 ---
+import { getRandomId } from "@lib/utils";
+
 interface Props {
   name: string;
   label?: string;
@@ -8,12 +10,14 @@ interface Props {
 }
 
 const props = Astro.props;
+
+const id = getRandomId("input");
 ---
 
 <div class={props.class}>
-  <label for={props.name} class="text-gray-700">{props.label}</label>
+  <label for={id} class="text-gray-700">{props.label}</label>
   <select
-    id={props.name}
+    id={id}
     name={props.name}
     required={props.required}
     onchange={props.onchange}
