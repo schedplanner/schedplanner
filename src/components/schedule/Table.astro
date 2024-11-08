@@ -4,7 +4,7 @@ import TableHeaders from "@components/schedule/TableHeaders.astro";
 
 import { db } from "@lib/database";
 import { employee, group, schedule, shift } from "@lib/database/schema";
-import { fmtShift } from "@lib/utils";
+import { fmtShift, getRandomId } from "@lib/utils";
 
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
@@ -140,7 +140,7 @@ const shifts = await db.select().from(shift);
             {Array.from(Array(days_count), (_, i) => {
               i = i + 1;
 
-              const _id = "id" + Math.random().toString(16).slice(2);
+              const _id = getRandomId("schedule");
 
               if (!(employee.id in full_schedule) || !(i in full_schedule[employee.id])) {
                 return (
