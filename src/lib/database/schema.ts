@@ -1,9 +1,9 @@
 import { pgTable, serial, varchar, boolean, uniqueIndex, foreignKey, integer, time, pgEnum } from "drizzle-orm/pg-core";
 
-export const group = pgTable("group", {
+export const team = pgTable("team", {
   id: serial("id").primaryKey().notNull(),
   name: varchar("name").notNull(),
-  defaultGroup: boolean("default_group").default(false).notNull(),
+  defaultTeam: boolean("default_team").default(false).notNull(),
 });
 
 export const employee = pgTable(
@@ -12,7 +12,7 @@ export const employee = pgTable(
     id: serial("id").primaryKey().notNull(),
     firstName: varchar("first_name").notNull(),
     lastName: varchar("last_name").notNull(),
-    groupId: integer("group_id").notNull(),
+    teamId: integer("team_id").notNull(),
   },
   (table) => {
     return {
@@ -21,10 +21,10 @@ export const employee = pgTable(
         table.firstName.asc().nullsLast(),
         table.lastName.asc().nullsLast()
       ),
-      employeeGroupIdFkey: foreignKey({
-        columns: [table.groupId],
-        foreignColumns: [group.id],
-        name: "employee_group_id_fkey",
+      employeeTeamIdFkey: foreignKey({
+        columns: [table.teamId],
+        foreignColumns: [team.id],
+        name: "employee_team_id_fkey",
       }),
     };
   }
