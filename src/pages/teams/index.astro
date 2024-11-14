@@ -2,63 +2,79 @@
 import Subpage from "@layouts/Subpage.astro";
 
 import { db } from "@lib/database";
-import { team } from "@lib/database/schema";
+import { employee, team } from "@lib/database/schema";
 
 import Remove from "@components/buttons/Remove.astro";
 import HTMLInput from "@components/form/HTMLInput.astro";
 import HTMLSubmit from "@components/form/HTMLSubmit.astro";
 
+import { count, eq } from "drizzle-orm";
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
-const teams = await db.select().from(team).orderBy(team.name);
+const teams = await db
+  .select({
+    id: team.id,
+    name: team.name,
+    employeesCount: count(employee),
+  })
+  .from(team)
+  .rightJoin(employee, eq(employee.teamId, team.id))
+  .groupBy(team.id)
+  .orderBy(team.name);
 ---
 
 <Subpage title="Teams">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-4">
-      <h3 class="font-bold text-3xl">{m.add_team()}:</h3>
-      <form method="POST" action="/api/teams" class="flex flex-col gap-8">
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <HTMLInput name="name" placeholder={m.name()} type="text" required class="sm:col-span-2" />
-        </div>
-        <HTMLSubmit label={m.add()} class="col-span-2" />
+      <h3 class="font-bold text-3xl">Teams</h3>
+      <form method="POST" action="/api/teams" class="flex flex-row gap-2">
+        <HTMLInput name="name" placeholder={m.name()} type="text" required class="w-full" />
+        <HTMLSubmit label={m.add()} />
       </form>
 
       {
         teams.length === 0 ? (
           <span class="font-bold text-xl text-center">{m.no_teams()}</span>
         ) : (
-          <div class="flex flex-col gap-4">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <table class="w-full text-sm text-left rtl:text-right">
+            <thead class="text-xs bg-gray-200">
+              <tr>
+                <th class="px-6 py-3">{m.name()}</th>
+                <th class="px-6 py-3">Employees count</th>
+                <th class="px-6 py-3">Groups count</th>
+                <th />
+              </tr>
+            </thead>
+
+            <tbody>
               {teams.map((team) => {
                 return (
-                  <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-2 px-4">
-                    <div class="flex flex-col gap-2">
-                      <div>
-                        <form method="POST" action="/api/teams/rename">
-                          <HTMLInput type="text" name="team_name" value={team.name} label={m.name()} />
-
-                          <input name="team_id" value={team.id} hidden />
-                          <input type="submit" hidden />
+                  <tr class="even:bg-gray-100">
+                    <td class="px-6 py-4">
+                      <form method="POST" action={`/api/teams/${team.id}/rename`}>
+                        <input type="text" id="team_name" name="team_name" value={team.name} class="bg-transparent" />
+                        <input type="submit" hidden />
+                      </form>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span>{team.employeesCount}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex flex-row gap-2 items-center">
+                        <a href={`/teams/${team.id}`}>Edit</a>
+                        <form method="POST" action={`/api/teams/${team.id}/delete`}>
+                          <Remove />
                         </form>
                       </div>
-                      {team.defaultTeam ? <span class="font-bold text-center">{m.default_team()}</span> : null}
-                    </div>
-                    <div class="flex flex-row justify-end">
-                      <form method="POST" action="/api/teams/delete">
-                        <input name="team_id" value={team.id} hidden />
-
-                        <Remove />
-                      </form>
-                    </div>
-                  </div>
+                    </td>
+                  </tr>
                 );
               })}
-            </div>
-          </div>
+            </tbody>
+          </table>
         )
       }
     </div>

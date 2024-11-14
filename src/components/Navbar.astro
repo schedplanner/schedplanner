@@ -14,8 +14,7 @@ import { Icon } from "astro-icon/components";
   <ul class="flex flex-row gap-2">
     {
       [
-        ["/teams", m.teams(), "mdi:location"],
-        ["/employees", m.employees(), "mdi:people"],
+        ["/teams", m.teams(), "mdi:people"],
         ["/shifts", m.shifts(), "mdi:clock"],
       ].map(([url, name, icon]) => {
         return (

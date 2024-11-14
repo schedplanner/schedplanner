@@ -1,0 +1,183 @@
+---
+import Subpage from "@layouts/Subpage.astro";
+
+import { db } from "@lib/database";
+import { employee, group, team } from "@lib/database/schema";
+
+import Remove from "@components/buttons/Remove.astro";
+import HTMLInput from "@components/form/HTMLInput.astro";
+import HTMLSubmit from "@components/form/HTMLSubmit.astro";
+
+import { eq } from "drizzle-orm";
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
+import HTMLSelect from "@components/form/HTMLSelect.astro";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
+
+const { id } = Astro.params;
+
+const _team = (
+  await db
+    .select()
+    .from(team)
+    .where(eq(team.id, Number(id)))
+)[0];
+
+const groups = await db.select().from(group).where(eq(group.teamId, _team.id)).orderBy(group.name);
+
+const employees = await db
+  .select({
+    id: employee.id,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    teamId: employee.teamId,
+    groupId: employee.groupId,
+    groupName: group.name,
+  })
+  .from(employee)
+  .where(eq(employee.teamId, _team.id))
+  .leftJoin(group, eq(employee.groupId, group.id))
+  .orderBy(employee.lastName, employee.firstName);
+---
+
+<Subpage title=`Team ${_team.name}`>
+  <div class="flex flex-col gap-8">
+    <div class="flex flex-col gap-4">
+      <h3 class="font-bold text-3xl">Groups</h3>
+      <form method="POST" action=`/api/teams/${_team.id}/groups` class="flex flex-row gap-2">
+        <HTMLInput name="name" placeholder={m.name()} type="text" required class="w-full" />
+        <HTMLSubmit label={m.add()} />
+      </form>
+      {
+        groups.length === 0 ? (
+          <span class="font-bold text-xl text-center">No groups</span>
+        ) : (
+          <div class="rounded-xl">
+            <table class="w-full text-sm text-left rtl:text-right">
+              <thead class="text-xs bg-gray-200">
+                <tr>
+                  <th class="px-6 py-3">{m.name()}</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {groups.map((group) => {
+                  return (
+                    <tr class="even:bg-gray-100">
+                      <td class="px-6 py-4">
+                        <form
+                          method="POST"
+                          action={`/api/teams/${_team.id}/groups/${group.id}/rename`}
+                          class="flex flex-row justify-between items-center gap-4"
+                        >
+                          <input type="text" name="first_name" value={group.name} class="bg-transparent w-full" autocomplete="off" />
+                          <input type="submit" hidden />
+                        </form>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="flex flex-row gap-2 justify-end">
+                          <form method="POST" action={`/api/teams/${_team.id}/groups/${group.id}/delete`}>
+                            <Remove />
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+    </div>
+    <div class="flex flex-col gap-4">
+      <h3 class="font-bold text-3xl">Employees</h3>
+      <form method="POST" action={`/api/teams/${_team.id}/employees`} class="flex flex-row gap-2">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 w-full">
+          <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required />
+          <HTMLInput name="last_name" placeholder={m.last_name()} type="text" required />
+          <HTMLSelect name="group_id">
+            {
+              groups.map((group) => {
+                return <option value={group.id}>{group.name}</option>;
+              })
+            }
+          </HTMLSelect>
+        </div>
+        <HTMLSubmit label={m.add()} />
+      </form>
+
+      {
+        employees.length === 0 ? (
+          <span class="font-bold text-xl text-center">{m.no_employees()}</span>
+        ) : (
+          <div class="rounded-xl">
+            <table class="w-full text-sm text-left rtl:text-right">
+              <thead class="text-xs bg-gray-200">
+                <tr>
+                  <th class="px-6 py-3">{m.first_name()}</th>
+                  <th class="px-6 py-3">{m.last_name()}</th>
+                  <th class="px-6 py-3">Group</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {employees.map((employee) => {
+                  return (
+                    <tr class="even:bg-gray-100">
+                      <td class="px-6 py-4">
+                        <form
+                          method="POST"
+                          action={`/api/teams/${employee.teamId}/employees/${employee.id}/rename`}
+                          class="flex flex-row justify-between items-center gap-4"
+                        >
+                          <input type="text" name="first_name" value={employee.firstName} class="bg-transparent w-full" autocomplete="off" />
+                          <input type="submit" hidden />
+                        </form>
+                      </td>
+                      <td class="px-6 py-4">
+                        <form
+                          method="POST"
+                          action={`/api/teams/${employee.teamId}/employees/${employee.id}/rename`}
+                          class="flex flex-row justify-between items-center gap-4"
+                        >
+                          <input type="text" name="last_name" value={employee.lastName} class="bg-transparent w-full" autocomplete="off" />
+                          <input type="submit" hidden />
+                        </form>
+                      </td>
+                      <td>
+                        <form
+                          method="POST"
+                          action={`/api/teams/${employee.teamId}/employees/${employee.id}/move`}
+                          class="flex flex-row justify-between items-center gap-4"
+                        >
+                          <HTMLSelect name="group_id" onchange="this.form.submit()">
+                            {groups.map((group) => {
+                              return (
+                                <option value={group.id} selected={group.id === employee.groupId}>
+                                  {group.name}
+                                </option>
+                              );
+                            })}
+                          </HTMLSelect>
+                        </form>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="flex flex-row gap-2 justify-end">
+                          <form method="POST" action={`/api/teams/${employee.teamId}/employees/${employee.id}/delete`}>
+                            <Remove />
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Subpage>
