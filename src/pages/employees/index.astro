@@ -2,9 +2,8 @@
 import Subpage from "@layouts/Subpage.astro";
 
 import { db } from "@lib/database";
-import { employee, group } from "@lib/database/schema";
+import { employee, team } from "@lib/database/schema";
 
-import Remove from "@components/buttons/Remove.astro";
 import HTMLInput from "@components/form/HTMLInput.astro";
 import HTMLSubmit from "@components/form/HTMLSubmit.astro";
 
@@ -15,20 +14,20 @@ import { eq } from "drizzle-orm";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
-if ((await db.select().from(group)).length == 0) {
-  console.log("No groups found in the database! Redirecting to /groups so the user can add one.");
-  return Astro.redirect("/groups");
+if ((await db.select().from(team)).length == 0) {
+  console.log("No teams found in the database! Redirecting to /teams so the user can add one.");
+  return Astro.redirect("/teams");
 }
 
-let current_group = (Astro.cookies.get("current_group") || {})?.value || "";
+let currentTeam = (Astro.cookies.get("current_team") || {})?.value || "";
 
-if (current_group === "") {
+if (currentTeam === "") {
   Astro.redirect("/");
 }
 
-let current_group_id = (await db.select({ id: group.id }).from(group).where(eq(group.name, current_group)))[0].id;
+let currentTeamId = (await db.select({ id: team.id }).from(team).where(eq(team.name, currentTeam)))[0].id;
 
-const employees = await db.select().from(employee).where(eq(employee.groupId, current_group_id)).orderBy(employee.lastName, employee.firstName);
+const employees = await db.select().from(employee).where(eq(employee.teamId, currentTeamId)).orderBy(employee.lastName, employee.firstName);
 ---
 
 <Subpage title="Employees">
@@ -39,7 +38,7 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
         <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required />
         <HTMLInput name="last_name" placeholder={m.last_name()} type="text" required />
 
-        <input type="number" name="group_id" value={current_group_id} hidden />
+        <input type="number" name="team_id" value={currentTeamId} hidden />
       </div>
       <HTMLSubmit label={m.add()} class="col-span-2" />
     </form>
@@ -65,7 +64,7 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
                       <form method="POST" action="/api/employees/rename" class="flex flex-row justify-between items-center gap-4">
                         <input type="text" name="first_name" value={employee.firstName} class="bg-transparent w-full" autocomplete="off" />
                         <input name="employee_id" value={employee.id} hidden />
-                        <input name="group_id" value={employee.groupId} hidden />
+                        <input name="team_id" value={employee.teamId} hidden />
                         <input type="submit" hidden />
                       </form>
                     </td>
@@ -73,7 +72,7 @@ const employees = await db.select().from(employee).where(eq(employee.groupId, cu
                       <form method="POST" action="/api/employees/rename" class="flex flex-row justify-between items-center gap-4">
                         <input type="text" name="last_name" value={employee.lastName} class="bg-transparent w-full" autocomplete="off" />
                         <input name="employee_id" value={employee.id} hidden />
-                        <input name="group_id" value={employee.groupId} hidden />
+                        <input name="team_id" value={employee.teamId} hidden />
                         <input type="submit" hidden />
                       </form>
                     </td>

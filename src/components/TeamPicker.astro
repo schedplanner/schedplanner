@@ -1,0 +1,30 @@
+---
+import { db } from "@lib/database";
+import { team } from "@lib/database/schema";
+
+import * as m from "@paraglide/messages";
+
+let currentTeam = (Astro.cookies.get("current_team") || {})?.value;
+
+const teams = await db.select().from(team).orderBy(team.name);
+---
+
+<>
+  {
+    teams.length === 0 ? (
+      <span class="font-bold">{m.no_teams()}</span>
+    ) : (
+      <form method="POST" action="/api/teams/current" id="teams-picker" class="flex flex-col gap-2 max-w-32 sm:max-w-none">
+        <select name="chosen_team" onchange="this.form.submit()" required value={currentTeam} class="bg-inherit">
+          {teams.map((team) => {
+            return (
+              <option value={team.name} selected={team.name === currentTeam}>
+                {team.name}
+              </option>
+            );
+          })}
+        </select>
+      </form>
+    )
+  }
+</>

@@ -15,7 +15,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   await db.insert(employee).values({
     firstName: form_data.get("first_name") as unknown as string,
     lastName: form_data.get("last_name") as unknown as string,
-    groupId: form_data.get("group_id") as unknown as number,
+    teamId: form_data.get("team_id") as unknown as number,
+    // groupId: form_data.get("group_id") as unknown as number,
+    groupId: 1,
   });
 
   return redirect(request.headers.get("referer") || "/");

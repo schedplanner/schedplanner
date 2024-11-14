@@ -6,7 +6,7 @@ import HTMLInput from "@components/form/HTMLInput.astro";
 import Table from "@components/schedule/Table.astro";
 
 import { db } from "@lib/database";
-import { group } from "@lib/database/schema";
+import { team } from "@lib/database/schema";
 
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
@@ -15,35 +15,35 @@ import { eq } from "drizzle-orm";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 
-if ((await db.select().from(group)).length === 0) {
-  console.log("No groups found in the database! Redirecting to /groups so the user can add one.");
-  return Astro.redirect("/groups");
+if ((await db.select().from(team)).length === 0) {
+  console.log("No teams found in the database! Redirecting to /teams so the user can add one.");
+  return Astro.redirect("/teams");
 }
 
-let currentGroup = "";
-let currentGroupId = -1;
+let currentTeam = "";
+let currentTeamId = -1;
 
-if (Astro.cookies.has("current_group")) {
-  currentGroup = Astro.cookies.get("current_group")?.value || "";
-  if (currentGroup !== "" && (await db.select().from(group).where(eq(group.name, currentGroup))).length == 0) {
-    console.warn(`Location '${currentGroup}' not found in the database! Clearing the cookie.`);
-    Astro.cookies.delete("current_group");
-    currentGroup = "";
+if (Astro.cookies.has("current_team")) {
+  currentTeam = Astro.cookies.get("current_team")?.value || "";
+  if (currentTeam !== "" && (await db.select().from(team).where(eq(team.name, currentTeam))).length == 0) {
+    console.warn(`Location '${currentTeam}' not found in the database! Clearing the cookie.`);
+    Astro.cookies.delete("current_team");
+    currentTeam = "";
   }
 }
 
-if (currentGroup === "") {
-  const default_group = (await db.select({ name: group.name }).from(group).where(eq(group.defaultGroup, true)))[0]["name"];
-  currentGroup = default_group;
-  Astro.cookies.set("current_group", currentGroup);
+if (currentTeam === "") {
+  const default_team = (await db.select({ name: team.name }).from(team).where(eq(team.defaultTeam, true)))[0]["name"];
+  currentTeam = default_team;
+  Astro.cookies.set("current_team", currentTeam);
 }
 
-if (currentGroup === "") {
-  console.log("Current group is for some reason not set, redirecting to /groups");
-  return Astro.redirect("/groups");
+if (currentTeam === "") {
+  console.log("Current team is for some reason not set, redirecting to /teams");
+  return Astro.redirect("/teams");
 }
 
-currentGroupId = (await db.select({ id: group.id }).from(group).where(eq(group.name, currentGroup)))[0]["id"];
+currentTeamId = (await db.select({ id: team.id }).from(team).where(eq(team.name, currentTeam)))[0]["id"];
 
 const now = new Date();
 const year = Astro.cookies.get("year")?.number() || now.getFullYear();

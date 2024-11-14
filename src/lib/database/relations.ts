@@ -1,7 +1,11 @@
 import { relations } from "drizzle-orm/relations";
-import { group, employee, schedule, shift } from "@lib/database/schema";
+import { group, employee, schedule, shift, team } from "@lib/database/schema";
 
 export const employeeRelations = relations(employee, ({ one, many }) => ({
+  team: one(team, {
+    fields: [employee.teamId],
+    references: [team.id],
+  }),
   group: one(group, {
     fields: [employee.groupId],
     references: [group.id],
@@ -9,7 +13,7 @@ export const employeeRelations = relations(employee, ({ one, many }) => ({
   schedules: many(schedule),
 }));
 
-export const groupRelations = relations(group, ({ many }) => ({
+export const teamRelations = relations(team, ({ many }) => ({
   employees: many(employee),
 }));
 

@@ -1,22 +1,22 @@
 import { db } from "@lib/database";
-import { group } from "@lib/database/schema";
+import { team } from "@lib/database/schema";
 
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async () => {
-  const groups = await db.select().from(group);
+  const teams = await db.select().from(team);
 
-  return new Response(JSON.stringify(groups), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify(teams), { headers: { "Content-Type": "application/json" } });
 };
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const form_data = await request.formData();
 
-  const isFirstGroup = (await db.select().from(group)).length === 0;
+  const isFirstTeam = (await db.select().from(team)).length === 0;
 
-  await db.insert(group).values({
+  await db.insert(team).values({
     name: form_data.get("name") as string,
-    defaultGroup: isFirstGroup,
+    defaultTeam: isFirstTeam,
   });
 
   return redirect(request.headers.get("referer") || "/");

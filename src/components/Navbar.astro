@@ -1,5 +1,5 @@
 ---
-import GroupPicker from "@components/GroupPicker.astro";
+import TeamPicker from "@components/TeamPicker.astro";
 
 import * as m from "@paraglide/messages";
 
@@ -9,12 +9,12 @@ import { Icon } from "astro-icon/components";
 <div class="flex flex-row gap-4 items-center justify-between p-2 px-4 bg-gray-100">
   <div class="flex flex-row items-center gap-4">
     <h1><button><a href="/">{m.navbar_title()}</a></button></h1>
-    <GroupPicker />
+    <TeamPicker />
   </div>
   <ul class="flex flex-row gap-2">
     {
       [
-        ["/groups", m.groups(), "mdi:location"],
+        ["/teams", m.teams(), "mdi:location"],
         ["/employees", m.employees(), "mdi:people"],
         ["/shifts", m.shifts(), "mdi:clock"],
       ].map(([url, name, icon]) => {

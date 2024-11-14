@@ -6,6 +6,24 @@ export const team = pgTable("team", {
   defaultTeam: boolean("default_team").default(false).notNull(),
 });
 
+export const group = pgTable(
+  "group",
+  {
+    id: serial("id").primaryKey().notNull(),
+    name: varchar("name").notNull(),
+    teamId: integer("team_id").notNull(),
+  },
+  (table) => {
+    return {
+      groupTeamIdFkey: foreignKey({
+        columns: [table.teamId],
+        foreignColumns: [team.id],
+        name: "group_team_id_fkey",
+      }),
+    };
+  }
+);
+
 export const employee = pgTable(
   "employee",
   {
@@ -13,6 +31,7 @@ export const employee = pgTable(
     firstName: varchar("first_name").notNull(),
     lastName: varchar("last_name").notNull(),
     teamId: integer("team_id").notNull(),
+    groupId: integer("group_id").notNull(),
   },
   (table) => {
     return {
@@ -25,6 +44,11 @@ export const employee = pgTable(
         columns: [table.teamId],
         foreignColumns: [team.id],
         name: "employee_team_id_fkey",
+      }),
+      employeeGroupIdFkey: foreignKey({
+        columns: [table.groupId],
+        foreignColumns: [group.id],
+        name: "employee_group_id_fkey",
       }),
     };
   }
