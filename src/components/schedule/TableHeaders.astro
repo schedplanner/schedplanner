@@ -1,9 +1,10 @@
 ---
 interface Props {
+  title: string;
   show_total_hours?: boolean;
 }
 
-const { show_total_hours = false } = Astro.props;
+const { title, show_total_hours = false } = Astro.props;
 
 const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "short" });
 
@@ -16,7 +17,7 @@ const days_count = new Date(year, month, 0).getDate();
 
 <>
   <tr>
-    <td class="font-bold text-left px-4" rowspan="2">Counts on shifts</td>
+    <td class="font-bold text-left px-4 border-[1px]" rowspan="2">{title}</td>
     {
       Array.from(Array(days_count), (_, i) => {
         i = i + 1;
@@ -26,8 +27,8 @@ const days_count = new Date(year, month, 0).getDate();
         return (
           <td
             class:list={[
-              "text-center",
-              is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "bg-gray-50 text-gray-800 border-[1px] border-b-0",
+              "text-center border-[1px] border-b-0",
+              is_sunday ? "bg-error text-gray-100" : is_today ? "bg-neutral-content text-base-300" : "bg-neutral",
             ]}
           >
             {i}
@@ -53,8 +54,8 @@ const days_count = new Date(year, month, 0).getDate();
         return (
           <td
             class:list={[
-              "font-normal text-center",
-              is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-500" : "bg-gray-50 text-gray-500 border-[1px] border-t-0",
+              "text-center  border-[1px] border-t-0",
+              is_sunday ? "bg-error text-gray-100" : is_today ? "bg-neutral-content text-base-300" : "bg-neutral",
             ]}
           >
             {dayFormat.format(_day)}

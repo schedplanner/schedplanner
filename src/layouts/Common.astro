@@ -26,23 +26,3 @@ const { title } = Astro.props;
     <slot />
   </body>
 </html>
-<style is:global>
-  a,
-  a:visited {
-    border-bottom: 1px solid theme("colors.gray.500");
-    transition-property: border-color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-  a:active,
-  a:hover {
-    border-bottom: 1px solid transparent;
-  }
-
-  button > a,
-  button > a:active,
-  button > a:hover,
-  button > a:visited {
-    border: none;
-  }
-</style>

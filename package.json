@@ -30,6 +30,7 @@
   "devDependencies": {
     "@inlang/paraglide-js": "1.11.2",
     "@types/node": "^22.9.0",
+    "daisyui": "^4.12.14",
     "drizzle-kit": "^0.24.2"
   }
 }

@@ -7,8 +7,6 @@ import { shift, shiftTypesEnum } from "@lib/database/schema";
 import Remove from "@components/buttons/Remove.astro";
 import ColorPicker from "@components/form/ColorPicker.astro";
 import HTMLInput from "@components/form/HTMLInput.astro";
-import HTMLSelect from "@components/form/HTMLSelect.astro";
-import HTMLSubmit from "@components/form/HTMLSubmit.astro";
 
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
@@ -19,58 +17,105 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
 ---
 
 <Subpage title="Shifts">
-  <div class="flex flex-col gap-4">
-    <h3 class="font-bold text-3xl">{m.add_shift()}:</h3>
-    <form method="POST" action="/api/shifts" class="flex flex-col gap-8">
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-3 items-center">
-        <HTMLInput name="label" label={m.label()} type="text" />
-        <HTMLSelect name="shift_type" label={m.shift_type()}>
-          {
-            shiftTypesEnum.enumValues.map((shiftType) => {
-              return <option value={shiftType}>{shiftType}</option>;
-            })
-          }
-        </HTMLSelect>
-        <ColorPicker label={m.color()} value="#ffffff" />
-        <HTMLInput name="start" label={m.shift_start()} type="time" required />
-        <HTMLInput name="end" label={m.shift_end()} type="time" required />
-      </div>
-      <HTMLSubmit label={m.add()} class="col-span-2" />
-    </form>
+  <div class="flex flex-col gap-8">
+    <div class="flex flex-col gap-4">
+      <h3 class="font-bold text-3xl">{m.add_shift()}:</h3>
+      <form method="POST" action="/api/shifts" class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-3 items-center">
+          <div class="flex flex-col gap-1">
+            <label for="new_shift_label">
+              {m.label()}
+            </label>
+            <input type="text" id="new_shift_label" name="label" class="input input-bordered" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="new_shift_type">{m.shift_type()} </label>
+            <select id="new_shift_type" name="shift_type" class="select select-bordered">
+              {
+                shiftTypesEnum.enumValues.map((shiftType) => {
+                  return <option value={shiftType}>{shiftType}</option>;
+                })
+              }
+            </select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="new_shift_color">
+              {m.color()}
+            </label>
+            <input
+              type="color"
+              id="new_shift_color"
+              name="color"
+              value="#ffffff"
+              class="block mt-auto mb-[1px] h-[2.5rem] w-full rounded-md cursor-pointer"
+              required
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="new_shift_start">{m.shift_start()}</label>
+            <input type="time" id="new_shift_start" name="start" class="input input-bordered" required />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="new_shift_end">{m.shift_end()}</label>
+            <input type="time" id="new_shift_end" name="end" class="input input-bordered" required />
+          </div>
+        </div>
+        <button type="submit" class="btn self-end">{m.add()}</button>
+      </form>
+    </div>
 
     {
       shifts.length === 0 ? (
         <span class="font-bold text-xl text-center">{m.no_shifts()}</span>
       ) : (
         <div class="flex flex-col gap-4">
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-5 gap-4">
             {shifts.map((shift) => {
               return (
-                <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-4">
-                  <div class="flex flex-col gap-2">
+                <div class="flex flex-col justify-between gap-4 rounded-xl p-4 bg-base-200">
+                  <div class="flex flex-col gap-4">
                     <form method="POST" action="/api/shifts/update" class="flex flex-col gap-2">
-                      <HTMLInput name="label" label={m.label()} type="text" value={shift.label!} />
-                      <HTMLSelect name="shift_type" label={m.shift_type()}>
-                        {shiftTypesEnum.enumValues.map((shiftType) => {
-                          return (
-                            <option value={shiftType} selected={shift.shiftType == shiftType}>
-                              {shiftType}
-                            </option>
-                          );
-                        })}
-                      </HTMLSelect>
-                      <HTMLInput name="start" label={m.shift_start()} type="time" value={shift.start} />
-                      <HTMLInput name="end" label={m.shift_end()} type="time" value={shift.end} />
-                      <ColorPicker label={m.color()} value={shift.color!} onchange="this.form.submit()" />
+                      <div class="flex flex-col gap-1">
+                        <label for={`shift_${shift.id}_label`}>{m.label()}</label>
+                        <input type="text" id={`shift_${shift.id}_label`} name="label" class="input input-bordered" />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label for={`shift_${shift.id}_type`}>{m.shift_type()} </label>
+                        <select id="new_shift_type" name={`shift_${shift.id}_type`} class="select select-bordered">
+                          {shiftTypesEnum.enumValues.map((shiftType) => {
+                            return <option value={shiftType}>{shiftType}</option>;
+                          })}
+                        </select>
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label for={`shift_${shift.id}_start`}>{m.shift_start()}</label>
+                        <input type="time" id={`shift_${shift.id}_start`} name="start" class="input input-bordered" required />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label for={`shift_${shift.id}_end`}>{m.shift_end()}</label>
+                        <input type="time" id={`shift_${shift.id}_end`} name="end" class="input input-bordered" required />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label for="new_shift_color">{m.color()}</label>
+                        <input
+                          type="color"
+                          id="new_shift_color"
+                          name="color"
+                          value={shift.color!}
+                          class="block mt-auto mb-[1px] h-[2.5rem] w-full rounded-md cursor-pointer"
+                          onchange="this.form.submit()"
+                          required
+                        />
+                      </div>
                       <input name="shift_id" value={shift.id} hidden />
                       <input type="submit" hidden />
                     </form>
-                  </div>
-                  <div class="flex flex-row justify-end">
-                    <form method="POST" action="/api/shifts/delete">
+                    <form method="POST" action="/api/shifts/delete" class="self-end">
                       <input name="shift_id" value={shift.id} hidden />
 
-                      <Remove />
+                      <button type="submit" class="btn btn-error">
+                        {m.remove()}
+                      </button>
                     </form>
                   </div>
                 </div>

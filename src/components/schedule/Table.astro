@@ -95,9 +95,6 @@ for (const s of employees_schedule) {
   full_schedule[s.employeeId][s.day]["start"] = fmtShift(s.start);
   full_schedule[s.employeeId][s.day]["end"] = fmtShift(s.end);
   full_schedule[s.employeeId][s.day]["color"] = s.color;
-  full_schedule[s.employeeId][s.day]["isToday"] = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-  full_schedule[s.employeeId][s.day]["isSunday"] = _day.getDay() == 0;
-
   const shift_hours =
     Math.abs(Date.parse(`${s.year}-${s.month}-${s.day} ${s.end}`) - Date.parse(`${s.year}-${s.month}-${s.day} ${s.start}`)) / (60 * 60 * 1000);
 
@@ -129,7 +126,7 @@ const shifts = await db.select().from(shift);
 
 <div class="overflow-auto h-[calc(100vh-10.1rem)]">
   <table class="table-auto border-collapse text-sm">
-    <TableHeaders show_total_hours={true} />
+    <TableHeaders title={m.employees()} show_total_hours={true} />
     {
       employees.map((employee) => {
         return (
@@ -141,10 +138,14 @@ const shifts = await db.select().from(shift);
               i = i + 1;
 
               const _id = getRandomId("schedule");
+              const _day = new Date(year, month - 1, i);
+
+              const isToday = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+              const isSunday = _day.getDay() == 0;
 
               if (!(employee.id in full_schedule) || !(i in full_schedule[employee.id])) {
                 return (
-                  <td class="hover:bg-opacity-50 transition-colors border-[1px]">
+                  <td class:list={["hover:bg-neutral transition-colors border-[1px]", { "bg-error": isSunday, "bg-neutral-content": isToday }]}>
                     <button
                       class="flex flex-col items-center justify-center w-10 h-10 invert mix-blend-difference"
                       onclick={`window.${_id}.showModal()`}
@@ -158,19 +159,7 @@ const shifts = await db.select().from(shift);
               const color = full_schedule[employee.id][i]["color"];
 
               return (
-                <td
-                  style={{ backgroundColor: color }}
-                  class:list={[
-                    "hover:bg-opacity-50 transition-colors border-[1px]",
-                    color
-                      ? null
-                      : full_schedule[employee.id][i]["isSunday"]
-                        ? "bg-red-500 text-gray-100"
-                        : full_schedule[employee.id][i]["isToday"]
-                          ? "bg-gray-300 bg-opacity-100"
-                          : "bg-slate-200 bg-opacity-0",
-                  ]}
-                >
+                <td style={{ backgroundColor: color }} class:list={["hover:bg-opacity-50 transition-colors border-[1px]"]}>
                   <button class="flex flex-col items-center justify-center w-10 h-10" onclick={`window.${_id}.showModal()`}>
                     {label ? (
                       label
@@ -192,7 +181,7 @@ const shifts = await db.select().from(shift);
         );
       })
     }
-    <TableHeaders />
+    <TableHeaders title={m.shifts()} />
     {
       shifts.map((s) => {
         return (
@@ -216,26 +205,17 @@ const shifts = await db.select().from(shift);
               const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
               const is_sunday = _day.getDay() == 0;
 
-              if (!(s.id in shift_counts) || !(i in shift_counts[s.id])) {
-                return (
-                  <td
-                    class:list={[
-                      "h-fit text-center border-[1px]",
-                      is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "text-gray-800",
-                    ]}
-                  >
-                    0
-                  </td>
-                );
-              }
+              let count = 0;
 
-              const count = shift_counts[s.id][i];
+              if (s.id in shift_counts && i in shift_counts[s.id]) {
+                count = shift_counts[s.id][i];
+              }
 
               return (
                 <td
                   class:list={[
-                    "h-fit text-center border-[1px] font-bold",
-                    is_sunday ? "bg-red-500 text-gray-100" : is_today ? "bg-gray-300 text-gray-800" : "text-gray-800",
+                    "h-fit text-center border-[1px] text-base-content",
+                    { "bg-error": is_sunday, "bg-neutral-content text-base-300": is_today },
                   ]}
                 >
                   {count}

@@ -27,56 +27,58 @@ const teams = await db
 ---
 
 <Subpage title="Teams">
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-8">
     <div class="flex flex-col gap-4">
       <h3 class="font-bold text-3xl">Teams</h3>
       <form method="POST" action="/api/teams" class="flex flex-row gap-2">
-        <HTMLInput name="name" placeholder={m.name()} type="text" required class="w-full" />
-        <HTMLSubmit label={m.add()} />
+        <input type="text" name="name" placeholder={m.name()} class="input input-bordered w-full" required />
+        <button type="submit" class="btn">{m.add()}</button>
       </form>
-
-      {
-        teams.length === 0 ? (
-          <span class="font-bold text-xl text-center">{m.no_teams()}</span>
-        ) : (
-          <table class="w-full text-sm text-left rtl:text-right">
-            <thead class="text-xs bg-gray-200">
-              <tr>
-                <th class="px-6 py-3">{m.name()}</th>
-                <th class="px-6 py-3">Employees count</th>
-                <th class="px-6 py-3">Groups count</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {teams.map((team) => {
-                return (
-                  <tr class="even:bg-gray-100">
-                    <td class="px-6 py-4">
-                      <form method="POST" action={`/api/teams/${team.id}/rename`}>
-                        <input type="text" id="team_name" name="team_name" value={team.name} class="bg-transparent" />
-                        <input type="submit" hidden />
-                      </form>
-                    </td>
-                    <td class="px-6 py-4">
-                      <span>{team.employeesCount}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                      <div class="flex flex-row gap-2 items-center">
-                        <a href={`/teams/${team.id}`}>Edit</a>
-                        <form method="POST" action={`/api/teams/${team.id}/delete`}>
-                          <Remove />
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )
-      }
     </div>
+    {
+      teams.length === 0 ? (
+        <span class="font-bold text-xl text-center">{m.no_teams()}</span>
+      ) : (
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{m.name()}</th>
+              <th>Employees count</th>
+              <th />
+            </tr>
+          </thead>
+
+          <tbody>
+            {teams.map((team) => {
+              return (
+                <tr>
+                  <td>
+                    <form method="POST" action={`/api/teams/${team.id}/rename`}>
+                      <input type="text" id="team_name" name="team_name" value={team.name} class="input input-bordered" />
+                      <input type="submit" hidden />
+                    </form>
+                  </td>
+                  <td>
+                    <span>{team.employeesCount}</span>
+                  </td>
+                  <td>
+                    <div class="flex flex-row gap-2 items-center justify-end">
+                      <a role="button" class="btn" href={`/teams/${team.id}`}>
+                        Edit
+                      </a>
+                      <form method="POST" action={`/api/teams/${team.id}/delete`}>
+                        <button type="submit" class="btn btn-error">
+                          {m.remove()}
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )
+    }
   </div>
 </Subpage>
