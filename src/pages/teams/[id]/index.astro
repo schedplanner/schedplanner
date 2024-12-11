@@ -95,9 +95,9 @@ const employees = await db
       <h3 class="font-bold text-3xl">Employees</h3>
       <form method="POST" action={`/api/teams/${_team.id}/employees`} class="flex flex-row gap-2">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 w-full">
-          <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required />
-          <HTMLInput name="last_name" placeholder={m.last_name()} type="text" required />
-          <HTMLSelect name="group_id" required>
+          <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required disabled={groups.length === 0} />
+          <HTMLInput name="last_name" placeholder={m.last_name()} type="text" required disabled={groups.length === 0} />
+          <HTMLSelect name="group_id" required disabled={groups.length === 0}>
             {
               groups.map((group) => {
                 return <option value={group.id}>{group.name}</option>;
@@ -105,7 +105,7 @@ const employees = await db
             }
           </HTMLSelect>
         </div>
-        <HTMLSubmit label={m.add()} />
+        <HTMLSubmit label={m.add()} disabled={groups.length === 0} />
       </form>
 
       {
