@@ -21,7 +21,7 @@ const teams = await db
     employeesCount: count(employee),
   })
   .from(team)
-  .rightJoin(employee, eq(employee.teamId, team.id))
+  .leftJoin(employee, eq(employee.teamId, team.id))
   .groupBy(team.id)
   .orderBy(team.name);
 ---
