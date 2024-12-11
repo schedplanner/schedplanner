@@ -97,7 +97,7 @@ const employees = await db
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 w-full">
           <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required />
           <HTMLInput name="last_name" placeholder={m.last_name()} type="text" required />
-          <HTMLSelect name="group_id">
+          <HTMLSelect name="group_id" required>
             {
               groups.map((group) => {
                 return <option value={group.id}>{group.name}</option>;
