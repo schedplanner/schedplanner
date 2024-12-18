@@ -149,6 +149,7 @@ const shifts = await db.select().from(shift);
 
               const _day = new Date(year, month - 1, i);
               const is_today = now.setHours(0, 0, 0, 0) === _day.setHours(0, 0, 0, 0);
+              const is_holiday = [0, 6].includes(_day.getDay());
 
               if (employee.id in full_schedule && i in full_schedule[employee.id]) {
                 label = full_schedule[employee.id][i]["label"];
@@ -160,7 +161,10 @@ const shifts = await db.select().from(shift);
               return (
                 <td
                   style={{ backgroundColor: color }}
-                  class:list={["hover:bg-opacity-50 transition-colors border-[1px] selectable", { "bg-gray-300 text-gray-800": !color && is_today }]}
+                  class:list={[
+                    "hover:bg-opacity-50 transition-colors border-[1px] selectable",
+                    { "bg-gray-300 text-gray-800": !color && is_today, "bg-custom-holiday": !color && is_holiday },
+                  ]}
                   data-employee={employee.id}
                   data-day={i}
                 >
@@ -205,14 +209,14 @@ const shifts = await db.select().from(shift);
 
               const _day = new Date(year, month - 1, i);
               const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-              const is_sunday = _day.getDay() == 0;
+              const is_holiday = [0, 6].includes(_day.getDay());
               const _count = shift_counts[s.id] && shift_counts[s.id][i] ? shift_counts[s.id][i] : 0;
 
               return (
                 <td
                   class:list={[
                     "h-fit text-center border-[1px]",
-                    { "bg-red-500 text-gray-100": is_sunday },
+                    { "bg-custom-holiday text-gray-100": is_holiday },
                     { "bg-gray-300 text-gray-800": is_today },
                     { "font-bold": _count > 0 },
                   ]}
