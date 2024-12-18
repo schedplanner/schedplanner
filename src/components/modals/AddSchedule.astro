@@ -2,8 +2,17 @@
 export const prerender = false;
 
 import HTMLSubmit from "@components/form/HTMLSubmit.astro";
-
+import { shift } from "@lib/database/schema";
 import { fmtShift } from "@lib/utils";
+
+interface Props {
+  id: string;
+  year: number;
+  month: number;
+  day: string;
+  employee_id: string;
+  shifts: (typeof shift.$inferSelect)[];
+}
 
 const { id, year, month, day, employee_id, shifts } = Astro.props;
 ---
@@ -14,7 +23,7 @@ const { id, year, month, day, employee_id, shifts } = Astro.props;
       <form method="POST" action="/api/schedule">
         <div class="flex flex-col gap-4">
           <select name="shift_id" class="bg-slate-200 px-4 py-2" required>
-            <option value="none">None</option>
+            <option value="-1">None</option>
             {
               shifts.map((shift) => {
                 return (
