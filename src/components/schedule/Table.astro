@@ -3,10 +3,10 @@ import AddSchedule from "@components/modals/AddSchedule.astro";
 import TableHeaders from "@components/schedule/TableHeaders.astro";
 
 import { db } from "@lib/database";
-import { employee, team, schedule, shift, group } from "@lib/database/schema";
+import { employee, team, schedule, shift, group, holiday } from "@lib/database/schema";
 import { fmtShift } from "@lib/utils";
 
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 if ((await db.select().from(team)).length === 0) {
   console.log("No teams found in the database! Redirecting to /teams so the user can add one.");
@@ -118,11 +118,18 @@ for (const s of employees_schedule) {
 }
 
 const shifts = await db.select().from(shift);
+console.log(`date::text LIKE '${year.toString()}-_${month.toString()}-%'`);
+const holidays = await db
+  .select()
+  .from(holiday)
+  .where(sql.raw(`date::text LIKE '${year.toString()}-%'`));
+
+console.log(holidays);
 ---
 
 <div class="overflow-auto h-[calc(100vh-7.4rem)]">
   <table class="table-auto border-collapse text-sm">
-    <TableHeaders />
+    <TableHeaders holidays={holidays} />
     {
       groups.map((group) => {
         return (
@@ -155,7 +162,13 @@ const shifts = await db.select().from(shift);
 
                       const _day = new Date(year, month - 1, i);
                       const is_today = now.setHours(0, 0, 0, 0) === _day.setHours(0, 0, 0, 0);
-                      const is_holiday = [0, 6].includes(_day.getDay());
+                      const is_weekend = [0, 6].includes(_day.getDay());
+                      const is_custom_holiday = holidays
+                        .flatMap((h) => h.date)
+                        .includes(
+                          `${year}-${_day.toLocaleDateString("pl-PL", { month: "2-digit" })}-${_day.toLocaleDateString("pl-PL", { day: "2-digit" })}`
+                        );
+                      const is_free = is_weekend || is_custom_holiday;
 
                       if (employee.id in full_schedule && i in full_schedule[employee.id]) {
                         label = full_schedule[employee.id][i]["label"];
@@ -170,7 +183,7 @@ const shifts = await db.select().from(shift);
                           style={{ backgroundColor: color }}
                           class:list={[
                             "hover:bg-opacity-50 transition-colors border-1 selectable",
-                            { "bg-gray-300 text-gray-800": !color && is_today, "bg-custom-holiday": !color && is_holiday },
+                            { "bg-gray-300 text-gray-800": !color && is_today, "bg-custom-holiday": !color && is_free },
                           ]}
                           data-employee={employee.id}
                           data-day={i}
@@ -198,7 +211,7 @@ const shifts = await db.select().from(shift);
         );
       })
     }
-    <TableHeaders footer={true} />
+    <TableHeaders holidays={holidays} footer={true} />
     {
       shifts
         .filter((s) => shift_counts[s.id])
@@ -222,14 +235,20 @@ const shifts = await db.select().from(shift);
 
                 const _day = new Date(year, month - 1, i);
                 const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-                const is_holiday = [0, 6].includes(_day.getDay());
+                const is_weekend = [0, 6].includes(_day.getDay());
+                const is_custom_holiday = holidays
+                  .flatMap((h) => h.date)
+                  .includes(
+                    `${year}-${_day.toLocaleDateString("pl-PL", { month: "2-digit" })}-${_day.toLocaleDateString("pl-PL", { day: "2-digit" })}`
+                  );
+                const is_free = is_weekend || is_custom_holiday;
                 const _count = shift_counts[s.id] && shift_counts[s.id][i] ? shift_counts[s.id][i] : 0;
 
                 return (
                   <td
                     class:list={[
                       "h-fit text-center border-1",
-                      { "bg-custom-holiday text-gray-100": is_holiday },
+                      { "bg-custom-holiday text-gray-100": is_free },
                       { "bg-gray-300 text-gray-800": is_today },
                       { "font-bold": _count > 0 },
                     ]}

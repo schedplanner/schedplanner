@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, boolean, uniqueIndex, foreignKey, integer, time, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, boolean, uniqueIndex, foreignKey, integer, time, pgEnum, date } from "drizzle-orm/pg-core";
 
 export const team = pgTable("team", {
   id: serial("id").primaryKey().notNull(),
@@ -98,4 +98,10 @@ export const shift = pgTable("shift", {
   end: time("end").notNull(),
   color: varchar("color"),
   shiftType: shiftTypesEnum("shift_type"),
+});
+
+export const holiday = pgTable("holiday", {
+  id: serial("id").primaryKey().notNull(),
+  name: varchar("name"),
+  date: date("date", { mode: "string" }).notNull(),
 });

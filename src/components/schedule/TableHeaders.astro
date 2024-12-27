@@ -1,9 +1,12 @@
 ---
+import { holiday } from "@lib/database/schema";
+
 interface Props {
+  holidays: (typeof holiday.$inferSelect)[];
   footer?: boolean;
 }
 
-const { footer = false } = Astro.props;
+const { holidays, footer = false } = Astro.props;
 
 const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "short" });
 
@@ -21,18 +24,28 @@ const days_count = new Date(year, month, 0).getDate();
       i = i + 1;
       const _day = new Date(year, month - 1, i);
       const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-      const is_holiday = [0, 6].includes(_day.getDay());
+      const is_weekend = [0, 6].includes(_day.getDay());
+      const is_custom_holiday = holidays
+        .flatMap((h) => h.date)
+        .includes(`${year}-${_day.toLocaleDateString("pl-PL", { month: "2-digit" })}-${_day.toLocaleDateString("pl-PL", { day: "2-digit" })}`);
+      const is_free = is_weekend || is_custom_holiday;
+
+      const custom_holiday = holidays.find(
+        (h) => h.date == `${year}-${_day.toLocaleDateString("pl-PL", { month: "2-digit" })}-${_day.toLocaleDateString("pl-PL", { day: "2-digit" })}`
+      );
+      const custom_holiday_name = custom_holiday?.name;
 
       return (
         <td
           class:list={[
             "text-center border-1",
             {
-              "bg-custom-holiday text-gray-100": is_holiday,
+              "bg-custom-holiday text-gray-100": is_free,
               "bg-gray-300 text-gray-800": is_today,
-              "bg-gray-50 text-gray-800": !is_holiday && !is_today,
+              "bg-gray-50 text-gray-800": !is_free && !is_today,
             },
           ]}
+          title={custom_holiday_name ? custom_holiday_name : null}
         >
           {i}
           <br />

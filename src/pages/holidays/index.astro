@@ -1,0 +1,74 @@
+---
+import Subpage from "@layouts/Subpage.astro";
+
+import { db } from "@lib/database";
+import { holiday } from "@lib/database/schema";
+
+import Remove from "@components/buttons/Remove.astro";
+import HTMLInput from "@components/form/HTMLInput.astro";
+import HTMLSubmit from "@components/form/HTMLSubmit.astro";
+
+import * as m from "@paraglide/messages";
+import { setLanguageTag } from "@paraglide/runtime";
+
+setLanguageTag((Astro.preferredLocale || "en") as any);
+
+const holidays = await db.select().from(holiday).orderBy(holiday.date);
+---
+
+<Subpage title="Holidays">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4">
+      <h3 class="font-bold text-3xl">Holidays</h3>
+      <form method="POST" action="/api/holidays" class="flex flex-col gap-8">
+        <div class="grid grid-cols-2 gap-6 items-center">
+          <HTMLInput name="name" label={m.name()} type="text" />
+          <HTMLInput name="date" label="Date" type="date" required />
+        </div>
+        <HTMLSubmit label={m.add()} class="col-span-2" />
+      </form>
+
+      {
+        holidays.length === 0 ? (
+          <span class="font-bold text-xl text-center">No custom holidays defined!</span>
+        ) : (
+          <table class="w-full text-sm text-left rtl:text-right">
+            <thead class="text-xs bg-gray-200">
+              <tr>
+                <th class="px-6 py-3">{m.name()}</th>
+                <th class="px-6 py-3">Date</th>
+                <th class="px-6 py-3">Actions</th>
+                <th />
+              </tr>
+            </thead>
+
+            <tbody>
+              {holidays.map((holiday) => {
+                return (
+                  <tr class="even:bg-gray-100">
+                    <td class="px-6 py-4">
+                      <form method="POST" action={`/api/holidays/${holiday.id}/rename`}>
+                        <input type="text" id="holiday_name" name="holiday_name" value={holiday.name} class="bg-transparent" />
+                        <input type="submit" hidden />
+                      </form>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span>{holiday.date}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex flex-row gap-2 items-center">
+                        <form method="POST" action={`/api/holidays/${holiday.id}/delete`}>
+                          <Remove />
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )
+      }
+    </div>
+  </div>
+</Subpage>
