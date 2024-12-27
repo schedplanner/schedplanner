@@ -20,7 +20,7 @@
     "@iconify-json/mdi": "^1.2.1",
     "@inlang/paraglide-astro": "^0.2.2",
     "astro": "^4.16.10",
-    "astro-icon": "^1.1.2",
+    "astro-icon": "^1.1.5",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.33.0",
     "postgres": "^3.4.5",
