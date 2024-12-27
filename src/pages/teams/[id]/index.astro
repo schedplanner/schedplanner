@@ -38,7 +38,7 @@ const employees = await db
   .from(employee)
   .where(eq(employee.teamId, _team.id))
   .leftJoin(group, eq(employee.groupId, group.id))
-  .orderBy(employee.lastName, employee.firstName);
+  .orderBy(group.name, employee.firstName, employee.lastName);
 ---
 
 <Subpage title=`Team ${_team.name}`>
