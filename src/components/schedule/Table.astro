@@ -3,7 +3,7 @@ import AddSchedule from "@components/modals/AddSchedule.astro";
 import TableHeaders from "@components/schedule/TableHeaders.astro";
 
 import { db } from "@lib/database";
-import { employee, team, schedule, shift } from "@lib/database/schema";
+import { employee, team, schedule, shift, group } from "@lib/database/schema";
 import { fmtShift } from "@lib/utils";
 
 import * as m from "@paraglide/messages";
@@ -48,6 +48,7 @@ const year = Astro.cookies.get("year")?.number() || now.getFullYear();
 const month = Astro.cookies.get("month")?.number() || now.getMonth() + 1;
 
 const employees = await db.select().from(employee).where(eq(employee.teamId, currentTeamId)).orderBy(employee.lastName, employee.firstName);
+const groups = await db.select().from(group).where(eq(group.teamId, currentTeamId));
 
 const employees_ids = employees.flatMap((e) => {
   return e.id;
@@ -127,63 +128,75 @@ const shifts = await db.select().from(shift);
   <table class="table-auto border-collapse text-sm">
     <TableHeaders show_total_hours={true} />
     {
-      employees.map((employee) => {
-        let _total_hours = 0;
-
-        if (employee.id in total_hours) {
-          _total_hours = total_hours[employee.id];
-        }
-
+      groups.map((group) => {
         return (
-          <tr>
-            <td class="px-4  whitespace-nowrap h-fit border-[1px]">
-              {employee.firstName} {employee.lastName}
-            </td>
-            {Array.from(Array(days_count), (_, i) => {
-              i = i + 1;
+          <>
+            <tr>
+              <td class="font-bold uppercase text-center">{group.name}</td>
+            </tr>
+            {employees
+              .filter((employee) => employee.groupId === group.id)
+              .map((employee) => {
+                let _total_hours = 0;
 
-              let label: string | undefined = undefined;
-              let color: string | undefined = undefined;
-              let start: string | undefined = undefined;
-              let end: string | undefined = undefined;
+                if (employee.id in total_hours) {
+                  _total_hours = total_hours[employee.id];
+                }
 
-              const _day = new Date(year, month - 1, i);
-              const is_today = now.setHours(0, 0, 0, 0) === _day.setHours(0, 0, 0, 0);
-              const is_holiday = [0, 6].includes(_day.getDay());
+                return (
+                  <tr>
+                    {/* <td class="px-4 whitespace-nowrap h-fit border-[1px]">{group.name}</td> */}
+                    <td class="px-4 whitespace-nowrap h-fit border-[1px]">
+                      {employee.firstName} {employee.lastName}
+                    </td>
+                    {Array.from(Array(days_count), (_, i) => {
+                      i = i + 1;
 
-              if (employee.id in full_schedule && i in full_schedule[employee.id]) {
-                label = full_schedule[employee.id][i]["label"];
-                color = full_schedule[employee.id][i]["color"];
-                start = full_schedule[employee.id][i]["start"];
-                end = full_schedule[employee.id][i]["end"];
-              }
+                      let label: string | undefined = undefined;
+                      let color: string | undefined = undefined;
+                      let start: string | undefined = undefined;
+                      let end: string | undefined = undefined;
 
-              return (
-                <td
-                  style={{ backgroundColor: color }}
-                  class:list={[
-                    "hover:bg-opacity-50 transition-colors border-[1px] selectable",
-                    { "bg-gray-300 text-gray-800": !color && is_today, "bg-custom-holiday": !color && is_holiday },
-                  ]}
-                  data-employee={employee.id}
-                  data-day={i}
-                >
-                  <button class="flex flex-col items-center justify-center w-10 h-10 selectable" data-employee={employee.id} data-day={i}>
-                    {label ? (
-                      label
-                    ) : start && end ? (
-                      <>
-                        {start}
-                        <br />
-                        {end}
-                      </>
-                    ) : null}
-                  </button>
-                </td>
-              );
-            })}
-            <td class:list={["border-[1px] text-xs text-center", { "fond-bold": _total_hours > 0 }]}>{_total_hours}</td>
-          </tr>
+                      const _day = new Date(year, month - 1, i);
+                      const is_today = now.setHours(0, 0, 0, 0) === _day.setHours(0, 0, 0, 0);
+                      const is_holiday = [0, 6].includes(_day.getDay());
+
+                      if (employee.id in full_schedule && i in full_schedule[employee.id]) {
+                        label = full_schedule[employee.id][i]["label"];
+                        color = full_schedule[employee.id][i]["color"];
+                        start = full_schedule[employee.id][i]["start"];
+                        end = full_schedule[employee.id][i]["end"];
+                      }
+
+                      return (
+                        <td
+                          style={{ backgroundColor: color }}
+                          class:list={[
+                            "hover:bg-opacity-50 transition-colors border-[1px] selectable",
+                            { "bg-gray-300 text-gray-800": !color && is_today, "bg-custom-holiday": !color && is_holiday },
+                          ]}
+                          data-employee={employee.id}
+                          data-day={i}
+                        >
+                          <button class="flex flex-col items-center justify-center w-10 h-10 selectable" data-employee={employee.id} data-day={i}>
+                            {label ? (
+                              label
+                            ) : start && end ? (
+                              <>
+                                {start}
+                                <br />
+                                {end}
+                              </>
+                            ) : null}
+                          </button>
+                        </td>
+                      );
+                    })}
+                    <td class:list={["border-[1px] text-xs text-center", { "fond-bold": _total_hours > 0 }]}>{_total_hours}</td>
+                  </tr>
+                );
+              })}
+          </>
         );
       })
     }
