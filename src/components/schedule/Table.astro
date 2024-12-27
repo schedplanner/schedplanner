@@ -181,7 +181,7 @@ const shifts = await db.select().from(shift);
                           data-day={i}
                           title={`Shift ${label}\n${start} - ${end}\n${shiftType}`}
                         >
-                          <button class="flex flex-col items-center justify-center w-10 h-10 selectable" data-employee={employee.id} data-day={i}>
+                          <button class="flex flex-col items-center justify-center size-8 selectable" data-employee={employee.id} data-day={i}>
                             {label ? (
                               label
                             ) : start && end ? (
