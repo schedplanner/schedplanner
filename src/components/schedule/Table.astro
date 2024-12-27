@@ -290,6 +290,7 @@ const shifts = await db.select().from(shift);
   };
 
   const scheduleTable = document.querySelector("table") as HTMLTableElement;
+  const tableContainer = scheduleTable.parentElement as HTMLDivElement;
   const addMultiScheduleElement = document.querySelector("dialog#schedule_multi") as HTMLDialogElement;
   const employeeIdElement = addMultiScheduleElement.querySelector("input[name='employee_id']") as HTMLInputElement;
   const dayElement = addMultiScheduleElement.querySelector("input[name='day']") as HTMLInputElement;
@@ -303,8 +304,8 @@ const shifts = await db.select().from(shift);
 
     event.preventDefault();
 
-    const x = event.pageX;
-    const y = event.pageY;
+    const x = event.pageX + tableContainer.scrollLeft;
+    const y = event.pageY + tableContainer.scrollTop;
 
     const div = document.createElement("div");
     div.style.position = "absolute";
@@ -316,8 +317,8 @@ const shifts = await db.select().from(shift);
     document.body.append(div);
 
     const resize = (event: PointerEvent) => {
-      const diffX = event.pageX - x;
-      const diffY = event.pageY - y;
+      const diffX = event.pageX + tableContainer.scrollLeft - x;
+      const diffY = event.pageY + tableContainer.scrollTop - y;
       div.style.left = diffX < 0 ? x + diffX + "px" : x + "px";
       div.style.top = diffY < 0 ? y + diffY + "px" : y + "px";
       div.style.height = Math.abs(diffY) + "px";
