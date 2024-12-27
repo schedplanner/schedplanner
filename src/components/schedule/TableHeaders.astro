@@ -21,15 +21,16 @@ const days_count = new Date(year, month, 0).getDate();
       i = i + 1;
       const _day = new Date(year, month - 1, i);
       const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-      const is_sunday = _day.getDay() == 0;
+      const is_holiday = [0, 6].includes(_day.getDay());
+
       return (
         <td
           class:list={[
             "text-center border-[1px] border-b-0",
             {
-              "bg-red-500 text-gray-100": is_sunday,
+              "bg-custom-holiday text-gray-100": is_holiday,
               "bg-gray-300 text-gray-800": is_today,
-              "bg-gray-50 text-gray-800": !is_sunday && !is_today,
+              "bg-gray-50 text-gray-800": !is_holiday && !is_today,
             },
           ]}
         >
