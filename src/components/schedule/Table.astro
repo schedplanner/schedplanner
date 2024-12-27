@@ -6,12 +6,7 @@ import { db } from "@lib/database";
 import { employee, team, schedule, shift, group } from "@lib/database/schema";
 import { fmtShift } from "@lib/utils";
 
-import * as m from "@paraglide/messages";
-import { setLanguageTag } from "@paraglide/runtime";
-
 import { and, eq, inArray } from "drizzle-orm";
-
-setLanguageTag((Astro.preferredLocale || "en") as any);
 
 if ((await db.select().from(team)).length === 0) {
   console.log("No teams found in the database! Redirecting to /teams so the user can add one.");

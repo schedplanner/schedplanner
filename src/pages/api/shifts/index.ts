@@ -1,5 +1,5 @@
 import { db } from "@lib/database";
-import { shift, shiftTypesEnum } from "@lib/database/schema";
+import { shift } from "@lib/database/schema";
 
 import type { APIRoute } from "astro";
 

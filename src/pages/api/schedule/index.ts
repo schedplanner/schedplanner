@@ -1,10 +1,10 @@
 import { db } from "@lib/database";
-import { schedule, shift } from "@lib/database/schema";
+import { schedule } from "@lib/database/schema";
 
 import type { APIRoute } from "astro";
 import { and, eq, inArray } from "drizzle-orm";
 
-export const GET: APIRoute = async (request) => {
+export const GET: APIRoute = async () => {
   const schedules = await db.select().from(schedule);
 
   return new Response(JSON.stringify(schedules), { headers: { "Content-Type": "application/json" } });
