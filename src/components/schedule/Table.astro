@@ -264,16 +264,7 @@ const shifts = await db.select().from(shift);
     elem?: HTMLElement;
   }
 
-  const selectables: Selectable[] = [];
-  const selectableElems = [...(document.querySelectorAll(".selectable") as NodeListOf<HTMLElement>)];
-
-  for (const selectable of selectableElems) {
-    const { x, y, width, height } = selectable.getBoundingClientRect();
-    selectables.push({ x: x + window.scrollX, y: y + window.scrollY, width, height, elem: selectable });
-    selectable.dataset.info = JSON.stringify({ x, y, width, height });
-  }
-
-  function checkSelected(selectAreaElem: Element) {
+  function checkSelected(selectables: Selectable[], selectAreaElem: Element) {
     const { x, y, height, width } = selectAreaElem.getBoundingClientRect();
 
     for (const selectable of selectables) {
@@ -289,95 +280,118 @@ const shifts = await db.select().from(shift);
     return !(r1.x + r1.width < r2.x || r2.x + r2.width < r1.x || r1.y + r1.height < r2.y || r2.y + r2.height < r1.y);
   };
 
-  const scheduleTable = document.querySelector("table") as HTMLTableElement;
-  const tableContainer = scheduleTable.parentElement as HTMLDivElement;
-  const addMultiScheduleElement = document.querySelector("dialog#schedule_multi") as HTMLDialogElement;
-  const employeeIdElement = addMultiScheduleElement.querySelector("input[name='employee_id']") as HTMLInputElement;
-  const dayElement = addMultiScheduleElement.querySelector("input[name='day']") as HTMLInputElement;
+  const init = () => {
+    const scheduleTable = document.querySelector("table") as HTMLTableElement;
+    const tableContainer = scheduleTable.parentElement as HTMLDivElement;
+    const addMultiScheduleElement = document.querySelector("dialog#schedule_multi") as HTMLDialogElement;
+    const employeeIdElement = addMultiScheduleElement.querySelector("input[name='employee_id']") as HTMLInputElement;
+    const dayElement = addMultiScheduleElement.querySelector("input[name='day']") as HTMLInputElement;
 
-  scheduleTable.addEventListener("pointerdown", (event: PointerEvent) => {
-    const target = event.target as HTMLElement;
+    const selectables: Selectable[] = [];
+    const selectableElems = [...(document.querySelectorAll(".selectable") as NodeListOf<HTMLElement>)];
 
-    if (event.button !== 0) return;
+    for (const selectable of selectableElems) {
+      const { x, y, width, height } = selectable.getBoundingClientRect();
+      selectables.push({ x: x + window.scrollX, y: y + window.scrollY, width, height, elem: selectable });
+      selectable.dataset.info = JSON.stringify({ x, y, width, height });
+    }
 
-    if (!target.classList.contains("selectable") && !target.classList.contains("intersected")) return;
-
-    event.preventDefault();
-
-    const x = event.pageX + tableContainer.scrollLeft;
-    const y = event.pageY + tableContainer.scrollTop;
-
-    const div = document.createElement("div");
-    div.style.position = "absolute";
-    div.style.width = "0";
-    div.style.height = "0";
-    div.style.left = x + "px";
-    div.style.top = y + "px";
-    div.classList.add("drag-select");
-    document.body.append(div);
-
-    const resize = (event: PointerEvent) => {
-      const diffX = event.pageX + tableContainer.scrollLeft - x;
-      const diffY = event.pageY + tableContainer.scrollTop - y;
-      div.style.left = diffX < 0 ? x + diffX + "px" : x + "px";
-      div.style.top = diffY < 0 ? y + diffY + "px" : y + "px";
-      div.style.height = Math.abs(diffY) + "px";
-      div.style.width = Math.abs(diffX) + "px";
-      checkSelected(div);
-    };
-
-    const employees: number[] = [];
-    const days: number[] = [];
-
-    target.classList.add("intersected");
-
-    resize(event);
-
-    const employee = Number(target.dataset.employee);
-    const day = Number(target.dataset.day);
-
-    !employees.includes(employee) && employees.push(employee);
-    !days.includes(day) && days.push(day);
-
-    selectables.forEach((item) => item.elem?.classList.remove("intersected"));
-
-    addEventListener("pointermove", (event: PointerEvent) => {
-      resize(event);
-
-      const intersectedElements = [...(document.querySelectorAll(".intersected") as NodeListOf<HTMLElement>)];
-
-      if (intersectedElements.length) {
-        intersectedElements.map((elem) => {
-          const employee = Number(elem.dataset.employee);
-          const day = Number(elem.dataset.day);
-
-          !employees.includes(employee) && employees.push(employee);
-          !days.includes(day) && days.push(day);
-        });
-      }
-    });
-
-    addEventListener("pointerup", (event: PointerEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement;
 
       if (event.button !== 0) return;
 
-      removeEventListener("pointermove", resize);
-      div.remove();
-      selectables.forEach((item) => item.elem?.classList.remove("intersected"));
-
       if (!target.classList.contains("selectable") && !target.classList.contains("intersected")) return;
 
-      if (employees.length && days.length) {
-        employeeIdElement.value = employees.join(",");
-        dayElement.value = days.join(",");
-      } else {
-        return;
-      }
+      event.preventDefault();
 
-      if (!addMultiScheduleElement.open) {
-        addMultiScheduleElement.showModal();
-      }
-    });
+      const x = event.pageX + tableContainer.scrollLeft;
+      const y = event.pageY + tableContainer.scrollTop;
+
+      const div = document.createElement("div");
+      div.style.position = "absolute";
+      div.style.width = "0";
+      div.style.height = "0";
+      div.style.left = x + "px";
+      div.style.top = y + "px";
+      div.classList.add("drag-select");
+      document.body.append(div);
+
+      const resize = (event: PointerEvent) => {
+        const diffX = event.pageX + tableContainer.scrollLeft - x;
+        const diffY = event.pageY + tableContainer.scrollTop - y;
+        div.style.left = diffX < 0 ? x + diffX + "px" : x + "px";
+        div.style.top = diffY < 0 ? y + diffY + "px" : y + "px";
+        div.style.height = Math.abs(diffY) + "px";
+        div.style.width = Math.abs(diffX) + "px";
+        checkSelected(selectables, div);
+      };
+
+      const employees: number[] = [];
+      const days: number[] = [];
+
+      target.classList.add("intersected");
+
+      resize(event);
+
+      const employee = Number(target.dataset.employee);
+      const day = Number(target.dataset.day);
+
+      !employees.includes(employee) && employees.push(employee);
+      !days.includes(day) && days.push(day);
+
+      selectables.forEach((item) => item.elem?.classList.remove("intersected"));
+
+      const handlePointerMove = (event: PointerEvent) => {
+        resize(event);
+
+        const intersectedElements = [...(document.querySelectorAll(".intersected") as NodeListOf<HTMLElement>)];
+
+        if (intersectedElements.length) {
+          intersectedElements.map((elem) => {
+            const employee = Number(elem.dataset.employee);
+            const day = Number(elem.dataset.day);
+
+            !employees.includes(employee) && employees.push(employee);
+            !days.includes(day) && days.push(day);
+          });
+        }
+      };
+
+      document.addEventListener("pointermove", handlePointerMove);
+
+      const handlePointerUp = (event: PointerEvent) => {
+        const target = event.target as HTMLElement;
+
+        if (event.button !== 0) return;
+
+        removeEventListener("pointermove", handlePointerMove);
+
+        div.remove();
+        selectables.forEach((item) => item.elem?.classList.remove("intersected"));
+
+        if (!target.classList.contains("selectable") && !target.classList.contains("intersected")) return;
+
+        if (employees.length && days.length) {
+          employeeIdElement.value = employees.join(",");
+          dayElement.value = days.join(",");
+        } else {
+          return;
+        }
+
+        if (!addMultiScheduleElement.open) {
+          addMultiScheduleElement.showModal();
+        }
+      };
+
+      document.addEventListener("pointerup", handlePointerUp);
+    };
+
+    console.log("Adding pointerdown event listener to scheduleTable");
+    scheduleTable.addEventListener("pointerdown", handlePointerDown);
+  };
+
+  document.addEventListener("astro:page-load", () => {
+    init();
   });
 </script>
