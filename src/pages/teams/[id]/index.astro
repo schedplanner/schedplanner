@@ -44,7 +44,8 @@ const employees = await db
 <Subpage title=`Team ${_team.name}`>
   <div class="flex flex-col gap-8">
     <div class="flex flex-col gap-4">
-      <h3 class="font-bold text-3xl">Groups</h3>
+      <h3 class="font-bold text-3xl">Team {_team.name}</h3>
+      <h4 class="font-bold text-xl">Groups</h4>
       <form method="POST" action=`/api/teams/${_team.id}/groups` class="flex flex-row gap-2">
         <HTMLInput name="name" placeholder={m.name()} type="text" required class="w-full" />
         <HTMLSubmit label={m.add()} />
@@ -99,7 +100,7 @@ const employees = await db
       }
     </div>
     <div class="flex flex-col gap-4">
-      <h3 class="font-bold text-3xl">Employees</h3>
+      <h4 class="font-bold text-xl">Employees</h4>
       <form method="POST" action={`/api/teams/${_team.id}/employees`} class="flex flex-row gap-2">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 w-full">
           <HTMLInput name="first_name" placeholder={m.first_name()} type="text" required disabled={groups.length === 0} />
