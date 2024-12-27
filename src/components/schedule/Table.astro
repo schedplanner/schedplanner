@@ -118,13 +118,10 @@ for (const s of employees_schedule) {
 }
 
 const shifts = await db.select().from(shift);
-console.log(`date::text LIKE '${year.toString()}-_${month.toString()}-%'`);
 const holidays = await db
   .select()
   .from(holiday)
   .where(sql.raw(`date::text LIKE '${year.toString()}-%'`));
-
-console.log(holidays);
 ---
 
 <div class="overflow-auto h-[calc(100vh-7.4rem)]">
