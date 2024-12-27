@@ -168,7 +168,7 @@ const shifts = await db.select().from(shift);
                   data-employee={employee.id}
                   data-day={i}
                 >
-                  <button class="flex flex-col items-center justify-center w-10 h-10">
+                  <button class="flex flex-col items-center justify-center w-10 h-10 selectable" data-employee={employee.id} data-day={i}>
                     {label ? (
                       label
                     ) : start && end ? (
@@ -234,7 +234,7 @@ const shifts = await db.select().from(shift);
 </div>
 <style>
   .intersected {
-    background-color: theme("colors.gray.600/75") !important;
+    background-color: theme("colors.gray.600") !important;
   }
 </style>
 <script>
@@ -271,12 +271,17 @@ const shifts = await db.select().from(shift);
     return !(r1.x + r1.width < r2.x || r2.x + r2.width < r1.x || r1.y + r1.height < r2.y || r2.y + r2.height < r1.y);
   };
 
+  const scheduleTable = document.querySelector("table") as HTMLTableElement;
   const addMultiScheduleElement = document.querySelector("dialog#schedule_multi") as HTMLDialogElement;
+  const employeeIdElement = addMultiScheduleElement.querySelector("input[name='employee_id']") as HTMLInputElement;
+  const dayElement = addMultiScheduleElement.querySelector("input[name='day']") as HTMLInputElement;
 
-  addEventListener("pointerdown", (event: PointerEvent) => {
+  scheduleTable.addEventListener("pointerdown", (event: PointerEvent) => {
     const target = event.target as HTMLElement;
 
-    if (target.nodeName !== "BUTTON") return;
+    if (event.button !== 0) return;
+
+    if (!target.classList.contains("selectable") && !target.classList.contains("intersected")) return;
 
     event.preventDefault();
 
@@ -302,15 +307,25 @@ const shifts = await db.select().from(shift);
       checkSelected(div);
     };
 
+    const employees: number[] = [];
+    const days: number[] = [];
+
+    target.classList.add("intersected");
+
+    resize(event);
+
+    const employee = Number(target.dataset.employee);
+    const day = Number(target.dataset.day);
+
+    !employees.includes(employee) && employees.push(employee);
+    !days.includes(day) && days.push(day);
+
     selectables.forEach((item) => item.elem?.classList.remove("intersected"));
 
     addEventListener("pointermove", (event: PointerEvent) => {
       resize(event);
 
       const intersectedElements = [...(document.querySelectorAll(".intersected") as NodeListOf<HTMLElement>)];
-
-      const employees: number[] = [];
-      const days: number[] = [];
 
       if (intersectedElements.length) {
         intersectedElements.map((elem) => {
@@ -321,27 +336,29 @@ const shifts = await db.select().from(shift);
           !days.includes(day) && days.push(day);
         });
       }
-
-      if (employees.length && days.length) {
-        const employeeIdElement = addMultiScheduleElement?.querySelector("input[name='employee_id']") as HTMLInputElement;
-        const dayElement = addMultiScheduleElement?.querySelector("input[name='day']") as HTMLInputElement;
-
-        employeeIdElement.value = employees.join(",");
-        dayElement.value = days.join(",");
-      }
     });
 
     addEventListener("pointerup", (event: PointerEvent) => {
       const target = event.target as HTMLElement;
 
-      if (target.nodeName !== "BUTTON") return;
+      if (event.button !== 0) return;
+
+      removeEventListener("pointermove", resize);
+      div.remove();
+      selectables.forEach((item) => item.elem?.classList.remove("intersected"));
+
+      if (!target.classList.contains("selectable") && !target.classList.contains("intersected")) return;
+
+      if (employees.length && days.length) {
+        employeeIdElement.value = employees.join(",");
+        dayElement.value = days.join(",");
+      } else {
+        return;
+      }
 
       if (!addMultiScheduleElement.open) {
         addMultiScheduleElement.showModal();
       }
-
-      removeEventListener("pointermove", resize);
-      div.remove();
     });
   });
 </script>
