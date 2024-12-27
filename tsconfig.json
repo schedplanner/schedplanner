@@ -11,5 +11,6 @@
     },
     "strictNullChecks": true,
     "allowJs": true
-  }
+  },
+  "exclude": ["src/paraglide"]
 }
