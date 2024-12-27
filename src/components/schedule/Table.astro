@@ -195,7 +195,7 @@ const shifts = await db.select().from(shift);
                         </td>
                       );
                     })}
-                    <td class:list={["border-1 text-xs text-center", { "fond-bold": _total_hours > 0 }]}>{_total_hours}</td>
+                    <td class:list={["border-1 text-xs text-center", { "font-bold": _total_hours > 0 }]}>{_total_hours}</td>
                   </tr>
                 );
               })}
