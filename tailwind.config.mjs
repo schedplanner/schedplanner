@@ -8,6 +8,9 @@ export default {
           holiday: 'theme("colors.green.500")',
         },
       },
+      borderWidth: {
+        1: "1px",
+      },
     },
   },
   plugins: [],

@@ -1,9 +1,9 @@
 ---
 interface Props {
-  show_total_hours?: boolean;
+  footer?: boolean;
 }
 
-const { show_total_hours = false } = Astro.props;
+const { footer = false } = Astro.props;
 
 const dayFormat = new Intl.DateTimeFormat(Astro.preferredLocale || "en", { weekday: "short" });
 
@@ -15,7 +15,7 @@ const days_count = new Date(year, month, 0).getDate();
 ---
 
 <tr>
-  <td class="font-bold text-left px-4">Counts on shifts</td>
+  <td class="font-bold text-left px-4 border-1">{!footer ? "Employees" : "Counts on shifts"}</td>
   {
     Array.from(Array(days_count), (_, i) => {
       i = i + 1;
@@ -26,7 +26,7 @@ const days_count = new Date(year, month, 0).getDate();
       return (
         <td
           class:list={[
-            "text-center border-[1px] border-b-0",
+            "text-center border-1",
             {
               "bg-custom-holiday text-gray-100": is_holiday,
               "bg-gray-300 text-gray-800": is_today,
@@ -41,5 +41,5 @@ const days_count = new Date(year, month, 0).getDate();
       );
     })
   }
-  {show_total_hours ? <td class="px-2 border-[1px]">Total hours</td> : null}
+  {!footer ? <td class="px-2 border-1">Total hours</td> : null}
 </tr>

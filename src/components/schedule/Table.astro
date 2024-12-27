@@ -47,7 +47,7 @@ const now = new Date();
 const year = Astro.cookies.get("year")?.number() || now.getFullYear();
 const month = Astro.cookies.get("month")?.number() || now.getMonth() + 1;
 
-const employees = await db.select().from(employee).where(eq(employee.teamId, currentTeamId)).orderBy(employee.lastName, employee.firstName);
+const employees = await db.select().from(employee).where(eq(employee.teamId, currentTeamId)).orderBy(employee.firstName, employee.lastName);
 const groups = await db.select().from(group).where(eq(group.teamId, currentTeamId));
 
 const employees_ids = employees.flatMap((e) => {
@@ -94,6 +94,7 @@ for (const s of employees_schedule) {
   full_schedule[s.employeeId][s.day]["start"] = fmtShift(s.start);
   full_schedule[s.employeeId][s.day]["end"] = fmtShift(s.end);
   full_schedule[s.employeeId][s.day]["color"] = s.color;
+  full_schedule[s.employeeId][s.day]["shiftType"] = s.shiftType;
 
   const shift_hours =
     Math.abs(Date.parse(`${s.year}-${s.month}-${s.day} ${s.end}`) - Date.parse(`${s.year}-${s.month}-${s.day} ${s.start}`)) / (60 * 60 * 1000);
@@ -126,7 +127,7 @@ const shifts = await db.select().from(shift);
 
 <div class="overflow-auto h-[calc(100vh-10.1rem)]">
   <table class="table-auto border-collapse text-sm">
-    <TableHeaders show_total_hours={true} />
+    <TableHeaders />
     {
       groups.map((group) => {
         return (
@@ -145,8 +146,7 @@ const shifts = await db.select().from(shift);
 
                 return (
                   <tr>
-                    {/* <td class="px-4 whitespace-nowrap h-fit border-[1px]">{group.name}</td> */}
-                    <td class="px-4 whitespace-nowrap h-fit border-[1px]">
+                    <td class="px-4 whitespace-nowrap h-fit border-1">
                       {employee.firstName} {employee.lastName}
                     </td>
                     {Array.from(Array(days_count), (_, i) => {
@@ -156,6 +156,7 @@ const shifts = await db.select().from(shift);
                       let color: string | undefined = undefined;
                       let start: string | undefined = undefined;
                       let end: string | undefined = undefined;
+                      let shiftType: string | undefined = undefined;
 
                       const _day = new Date(year, month - 1, i);
                       const is_today = now.setHours(0, 0, 0, 0) === _day.setHours(0, 0, 0, 0);
@@ -166,17 +167,19 @@ const shifts = await db.select().from(shift);
                         color = full_schedule[employee.id][i]["color"];
                         start = full_schedule[employee.id][i]["start"];
                         end = full_schedule[employee.id][i]["end"];
+                        shiftType = full_schedule[employee.id][i]["shiftType"];
                       }
 
                       return (
                         <td
                           style={{ backgroundColor: color }}
                           class:list={[
-                            "hover:bg-opacity-50 transition-colors border-[1px] selectable",
+                            "hover:bg-opacity-50 transition-colors border-1 selectable",
                             { "bg-gray-300 text-gray-800": !color && is_today, "bg-custom-holiday": !color && is_holiday },
                           ]}
                           data-employee={employee.id}
                           data-day={i}
+                          title={`Shift ${label}\n${start} - ${end}\n${shiftType}`}
                         >
                           <button class="flex flex-col items-center justify-center w-10 h-10 selectable" data-employee={employee.id} data-day={i}>
                             {label ? (
@@ -192,7 +195,7 @@ const shifts = await db.select().from(shift);
                         </td>
                       );
                     })}
-                    <td class:list={["border-[1px] text-xs text-center", { "fond-bold": _total_hours > 0 }]}>{_total_hours}</td>
+                    <td class:list={["border-1 text-xs text-center", { "fond-bold": _total_hours > 0 }]}>{_total_hours}</td>
                   </tr>
                 );
               })}
@@ -200,47 +203,49 @@ const shifts = await db.select().from(shift);
         );
       })
     }
-    <TableHeaders />
+    <TableHeaders footer={true} />
     {
-      shifts.map((s) => {
-        return (
-          <tr>
-            <td class="px-4 h-fit min-w-64 border-[1px]">
-              {s.label ? (
-                s.label
-              ) : (
-                <>
-                  <span>{s.shiftType}</span>
-                  <span>
-                    {fmtShift(s.start)} - {fmtShift(s.end)}
-                  </span>
-                </>
-              )}
-            </td>
-            {Array.from(Array(days_count), (_, i) => {
-              i = i + 1;
+      shifts
+        .filter((s) => shift_counts[s.id])
+        .map((s) => {
+          return (
+            <tr>
+              <td class="px-4 h-fit min-w-64 border-1">
+                {s.label ? (
+                  s.label
+                ) : (
+                  <>
+                    <span>{s.shiftType}</span>
+                    <span>
+                      {fmtShift(s.start)} - {fmtShift(s.end)}
+                    </span>
+                  </>
+                )}
+              </td>
+              {Array.from(Array(days_count), (_, i) => {
+                i = i + 1;
 
-              const _day = new Date(year, month - 1, i);
-              const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
-              const is_holiday = [0, 6].includes(_day.getDay());
-              const _count = shift_counts[s.id] && shift_counts[s.id][i] ? shift_counts[s.id][i] : 0;
+                const _day = new Date(year, month - 1, i);
+                const is_today = now.setHours(0, 0, 0, 0) == _day.setHours(0, 0, 0, 0);
+                const is_holiday = [0, 6].includes(_day.getDay());
+                const _count = shift_counts[s.id] && shift_counts[s.id][i] ? shift_counts[s.id][i] : 0;
 
-              return (
-                <td
-                  class:list={[
-                    "h-fit text-center border-[1px]",
-                    { "bg-custom-holiday text-gray-100": is_holiday },
-                    { "bg-gray-300 text-gray-800": is_today },
-                    { "font-bold": _count > 0 },
-                  ]}
-                >
-                  {_count}
-                </td>
-              );
-            })}
-          </tr>
-        );
-      })
+                return (
+                  <td
+                    class:list={[
+                      "h-fit text-center border-1",
+                      { "bg-custom-holiday text-gray-100": is_holiday },
+                      { "bg-gray-300 text-gray-800": is_today },
+                      { "font-bold": _count > 0 },
+                    ]}
+                  >
+                    {_count}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })
     }
   </table>
   <AddSchedule id="schedule_multi" year={year} month={month} day="" employee_id="" shifts={shifts} />
