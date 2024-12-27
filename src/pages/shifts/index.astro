@@ -49,7 +49,7 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                 <div class="flex flex-col justify-between gap-4 border-2 rounded-xl p-4">
                   <div class="flex flex-col gap-2">
                     <form method="POST" action="/api/shifts/update" class="flex flex-col gap-2">
-                      <HTMLInput name="label" label={m.label()} type="text" value={shift.label!} />
+                      <HTMLInput name="label" label={m.label()} type="text" value={shift.label!} onchange="this.form.submit()" />
                       <HTMLSelect name="shift_type" label={m.shift_type()}>
                         {shiftTypesEnum.enumValues.map((shiftType) => {
                           return (
@@ -59,8 +59,8 @@ const shifts = await db.select().from(shift).orderBy(shift.id);
                           );
                         })}
                       </HTMLSelect>
-                      <HTMLInput name="start" label={m.shift_start()} type="time" value={shift.start} />
-                      <HTMLInput name="end" label={m.shift_end()} type="time" value={shift.end} />
+                      <HTMLInput name="start" label={m.shift_start()} type="time" value={shift.start} onchange="this.form.submit()" />
+                      <HTMLInput name="end" label={m.shift_end()} type="time" value={shift.end} onchange="this.form.submit()" />
                       <ColorPicker label={m.color()} value={shift.color!} onchange="this.form.submit()" />
                       <input name="shift_id" value={shift.id} hidden />
                       <input type="submit" hidden />
