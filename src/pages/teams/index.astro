@@ -4,9 +4,9 @@ import Subpage from "@layouts/Subpage.astro";
 import { db } from "@lib/database";
 import { employee, team } from "@lib/database/schema";
 
-import Remove from "@components/buttons/Remove.astro";
-import HTMLInput from "@components/form/HTMLInput.astro";
-import HTMLSubmit from "@components/form/HTMLSubmit.astro";
+import Remove from "@components/buttons/Remove.svelte";
+import HTMLInput from "@components/form/HTMLInput.svelte";
+import HTMLSubmit from "@components/form/HTMLSubmit.svelte";
 
 import { count, eq } from "drizzle-orm";
 import * as m from "@paraglide/messages";

@@ -1,26 +1,28 @@
----
-import { getRandomId } from "@lib/utils";
+<script lang="ts">
+  import { getRandomId } from "@lib/utils";
 
-interface Props {
-  name?: string;
-  label?: string;
-  required?: boolean;
-  class?: string;
-  value?: string;
-  onchange?: string;
-}
+  import type { ChangeEventHandler } from "svelte/elements";
 
-const props = Astro.props;
+  interface Props {
+    name?: string;
+    label?: string;
+    required?: boolean;
+    class?: string;
+    value?: string;
+    onchange?: ChangeEventHandler<HTMLInputElement>;
+  }
 
-const id = getRandomId("input");
----
+  const props: Props = $props();
+
+  const id = getRandomId("input");
+</script>
 
 <div class:list={["h-full flex flex-col", { "justify-end items-end": !props.label }]}>
   <label for={id} class="text-gray-700">
     {props.label}
   </label>
   <input
-    id={id}
+    {id}
     name={props.name ? props.name : "color"}
     type="color"
     required={props.required}
