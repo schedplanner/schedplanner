@@ -4,14 +4,14 @@ import Subpage from "@layouts/Subpage.astro";
 import { db } from "@lib/database";
 import { employee, group, team } from "@lib/database/schema";
 
-import Remove from "@components/buttons/Remove.astro";
-import HTMLInput from "@components/form/HTMLInput.astro";
-import HTMLSubmit from "@components/form/HTMLSubmit.astro";
+import Remove from "@components/buttons/Remove.svelte";
+import HTMLInput from "@components/form/HTMLInput.svelte";
+import HTMLSubmit from "@components/form/HTMLSubmit.svelte";
 
 import { eq } from "drizzle-orm";
 import * as m from "@paraglide/messages";
 import { setLanguageTag } from "@paraglide/runtime";
-import HTMLSelect from "@components/form/HTMLSelect.astro";
+import HTMLSelect from "@components/form/HTMLSelect.svelte";
 
 setLanguageTag((Astro.preferredLocale || "en") as any);
 

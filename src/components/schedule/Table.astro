@@ -1,5 +1,5 @@
 ---
-import AddSchedule from "@components/modals/AddSchedule.astro";
+import AddSchedule from "@components/modals/AddSchedule.svelte";
 import TableHeaders from "@components/schedule/TableHeaders.astro";
 
 import { db } from "@lib/database";
@@ -259,7 +259,7 @@ const holidays = await db
         })
     }
   </table>
-  <AddSchedule id="schedule_multi" year={year} month={month} day="" employee_id="" shifts={shifts} />
+  <AddSchedule client:load="svelte" year={year} month={month} day="" employee_id="" shifts={shifts} />
 </div>
 <style>
   .intersected {
@@ -294,9 +294,9 @@ const holidays = await db
   const init = () => {
     const scheduleTable = document.querySelector("table") as HTMLTableElement;
     const tableContainer = scheduleTable.parentElement as HTMLDivElement;
-    const addMultiScheduleElement = document.querySelector("dialog#schedule_multi") as HTMLDialogElement;
-    const employeeIdElement = addMultiScheduleElement.querySelector("input[name='employee_id']") as HTMLInputElement;
-    const dayElement = addMultiScheduleElement.querySelector("input[name='day']") as HTMLInputElement;
+    const modifyScheduleElement = document.querySelector("dialog#modify_schedule") as HTMLDialogElement;
+    const employeeIdElement = modifyScheduleElement.querySelector("input[name='employee_id']") as HTMLInputElement;
+    const dayElement = modifyScheduleElement.querySelector("input[name='day']") as HTMLInputElement;
 
     const selectables: Selectable[] = [];
     const selectableElems = [...(document.querySelectorAll(".selectable") as NodeListOf<HTMLElement>)];
@@ -390,15 +390,14 @@ const holidays = await db
           return;
         }
 
-        if (!addMultiScheduleElement.open) {
-          addMultiScheduleElement.showModal();
+        if (!modifyScheduleElement.open) {
+          modifyScheduleElement.showModal();
         }
       };
 
       document.addEventListener("pointerup", handlePointerUp);
     };
 
-    console.log("Adding pointerdown event listener to scheduleTable");
     scheduleTable.addEventListener("pointerdown", handlePointerDown);
   };
 
