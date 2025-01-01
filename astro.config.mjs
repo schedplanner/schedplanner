@@ -7,9 +7,11 @@ import basicSsl from "@vitejs/plugin-basic-ssl";
 
 import icon from "astro-icon";
 
+import svelte from "@astrojs/svelte";
+
 export default defineConfig({
   output: "server",
-  integrations: [tailwind(), paraglide({ project: "./schedplanner.inlang", outdir: "./src/paraglide" }), icon()],
+  integrations: [tailwind(), paraglide({ project: "./schedplanner.inlang", outdir: "./src/paraglide" }), icon(), svelte()],
 
   adapter: node({
     mode: "standalone",
